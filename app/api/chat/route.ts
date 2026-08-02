@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ reply: "Please provide a valid message." }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     // Format chat history
     const history = messages.slice(0, -1).map((m: any) => ({
