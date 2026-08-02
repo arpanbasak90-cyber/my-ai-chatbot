@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cognito AI - Intelligent Search & Neural Engine",
-  description: "Experience effortless conversations powered by Cognito AI intelligence.",
+  title: "Cognito",
+  description: "Experience effortless conversations powered by Cognito intelligence.",
 };
 
 export default function RootLayout({

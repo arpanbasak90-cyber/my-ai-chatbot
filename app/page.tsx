@@ -121,27 +121,34 @@ export default function Home() {
       </div>
 
       {/* Header Bar */}
-      <header className={`relative z-20 w-full max-w-4xl flex justify-between items-center py-4 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
+      <header className={`relative z-20 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
         theme === "dark"
           ? "glass-panel shadow-2xl border border-slate-800/80"
           : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
       }`}>
-        <div className="flex items-center space-x-3">
-          {/* Cognito Logo */}
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-500 text-white font-black text-xl tracking-tighter shadow-md glow-cyan">
-            C
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+        <div className="flex items-center space-x-3.5">
+          {/* Attractive Robot Mascot Logo */}
+          <div className="relative w-11 h-11 rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-indigo-600 to-cyan-400 shadow-md glow-cyan">
+            <Image
+              src="/cognito_robot_logo.png"
+              alt="Cognito Robot Logo"
+              width={44}
+              height={44}
+              priority
+              className="object-cover rounded-xl"
+            />
+            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400"></span>
             </span>
           </div>
           <div>
-            <h1 className={`text-lg font-extrabold tracking-tight bg-clip-text text-transparent ${
+            <h1 className={`text-xl font-black tracking-tight bg-clip-text text-transparent ${
               theme === "dark"
-                ? "bg-gradient-to-r from-white via-slate-200 to-cyan-400"
+                ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
                 : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
             }`}>
-              Cognito AI Engine
+              Cognito
             </h1>
             <div className={`flex items-center space-x-2 text-[11px] font-mono ${
               theme === "dark" ? "text-cyan-400/90" : "text-indigo-600"
@@ -188,40 +195,41 @@ export default function Home() {
       <main className="relative z-20 w-full max-w-4xl flex-1 flex flex-col justify-center my-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center space-y-6 my-auto px-4 py-6">
-            {/* Center Hero Backend Technology Watermark Container */}
+            {/* Robot Mascot Hero Container */}
             <div className="relative group">
-              <div className={`absolute -inset-2 rounded-full transition duration-500 animate-pulse-slow ${
+              <div className={`absolute -inset-3 rounded-full transition duration-500 animate-pulse-slow ${
                 theme === "dark"
                   ? "bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 opacity-50 blur-2xl group-hover:opacity-85"
                   : "bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 opacity-40 blur-xl group-hover:opacity-70"
               }`} />
-              <div className={`relative w-40 h-40 sm:w-48 sm:h-48 rounded-full border-2 p-3 flex items-center justify-center shadow-2xl backdrop-blur-xl transition-all duration-300 ${
+              <div className={`relative w-44 h-44 sm:w-52 sm:h-52 rounded-full border-2 p-3 flex items-center justify-center shadow-2xl backdrop-blur-xl transition-all duration-300 ${
                 theme === "dark"
-                  ? "border-cyan-400/40 bg-slate-950/80"
+                  ? "border-cyan-400/50 bg-slate-950/90"
                   : "border-indigo-300/80 bg-white/95 shadow-indigo-100"
               }`}>
                 <Image
-                  src="/backend_watermark_nodes.png"
-                  alt="Cognito Node Architecture Watermark Illustration"
-                  width={170}
-                  height={170}
-                  className="object-contain filter drop-shadow-[0_0_16px_rgba(6,182,212,0.8)] animate-float"
+                  src="/cognito_robot_logo.png"
+                  alt="Cognito Robot Mascot"
+                  width={190}
+                  height={190}
+                  priority
+                  className="object-contain rounded-full filter drop-shadow-[0_0_20px_rgba(6,182,212,0.8)] animate-float"
                 />
               </div>
             </div>
 
             <div className="max-w-xl space-y-3">
-              <h2 className={`text-3xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent ${
+              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight bg-clip-text text-transparent ${
                 theme === "dark"
-                  ? "bg-gradient-to-r from-white via-slate-200 to-cyan-300"
+                  ? "bg-gradient-to-r from-white via-slate-100 to-cyan-300"
                   : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-700"
               }`}>
-                Ask Anything
+                Cognito
               </h2>
               <p className={`text-sm sm:text-base font-medium ${
                 theme === "dark" ? "text-slate-300" : "text-slate-700"
               }`}>
-                Powered by Cognito full-stack neural stream topology & high-speed vector embeddings.
+                Ask anything. Powered by Cognito full-stack neural stream topology & high-speed vector embeddings.
               </p>
             </div>
           </div>
@@ -240,21 +248,25 @@ export default function Home() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
-                    <span
-                      className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                        m.role === "user"
-                          ? "bg-white/20 text-white"
-                          : theme === "dark"
-                          ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                          : "bg-indigo-100 text-indigo-700 border border-indigo-200"
-                      }`}
-                    >
-                      {m.role === "user" ? "YOU" : "C"}
-                    </span>
+                    {m.role === "user" ? (
+                      <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold bg-white/20 text-white">
+                        YOU
+                      </span>
+                    ) : (
+                      <div className="relative w-6 h-6 rounded-md overflow-hidden border border-cyan-400/50">
+                        <Image
+                          src="/cognito_robot_logo.png"
+                          alt="Cognito Robot Avatar"
+                          width={24}
+                          height={24}
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                     <span className={`text-xs font-semibold tracking-wide uppercase font-mono ${
                       m.role === "user" ? "opacity-80" : theme === "dark" ? "text-slate-300" : "text-slate-700"
                     }`}>
-                      {m.role === "user" ? "User Query" : "Cognito AI Response"}
+                      {m.role === "user" ? "User Query" : "Cognito Response"}
                     </span>
                   </div>
                   {m.role === "assistant" && (
@@ -330,7 +342,7 @@ export default function Home() {
         <div className={`mt-2 text-center text-[11px] font-mono ${
           theme === "dark" ? "text-slate-400" : "text-slate-600 font-medium"
         }`}>
-          Cognito AI Neural Mesh Engine • Real-time Stream
+          Cognito Neural Mesh Engine • Real-time Stream
         </div>
       </footer>
     </div>
