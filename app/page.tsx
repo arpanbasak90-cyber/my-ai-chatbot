@@ -49,13 +49,13 @@ export default function Home() {
       const data = await res.json();
       setMessages([
         ...newMessages,
-        { role: "assistant", content: data.reply || "Sorry, I couldn't process that response.", timestamp: getTimeString() },
+        { role: "assistant", content: data.reply || data.error || "Sorry, I couldn't process that response.", timestamp: getTimeString() },
       ]);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setMessages([
         ...newMessages,
-        { role: "assistant", content: "⚠️ Error connecting to server. Please check your API key or connection.", timestamp: getTimeString() },
+        { role: "assistant", content: "⚠️ Network Error: Unable to reach the backend server.", timestamp: getTimeString() },
       ]);
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export default function Home() {
       {/* Sidebar */}
       <aside
         className={`relative z-20 flex flex-col border-r border-slate-800/60 glass-panel transition-all duration-300 ${
-          sidebarOpen ? "w-72" : "w-0 md:w-16"
+          sidebarOpen ? "w-64 sm:w-72" : "w-0 md:w-16"
         } overflow-hidden`}
       >
         <div className="flex h-16 items-center justify-between px-4 border-b border-slate-800/40">
@@ -140,7 +140,7 @@ export default function Home() {
         {sidebarOpen && (
           <div className="p-3 border-t border-slate-800/40">
             <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
-              <div className="relative h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-cyan-400 border border-cyan-500/30">
+              <div className="relative h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-cyan-400 border border-cyan-500/30 shrink-0">
                 AI
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950" />
               </div>
@@ -156,9 +156,9 @@ export default function Home() {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col h-full relative z-10 overflow-hidden">
+      <main className="flex-1 flex flex-col h-full relative z-10 overflow-hidden min-w-0">
         {/* Header */}
-        <header className="h-16 px-6 flex items-center justify-between border-b border-slate-800/40 glass-panel">
+        <header className="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800/40 glass-panel shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -234,7 +234,7 @@ export default function Home() {
               {messages.map((m, i) => (
                 <div
                   key={i}
-                  className={`flex gap-3 sm:gap-4 ${
+                  className={`flex gap-3 sm:gap-4 items-start ${
                     m.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
@@ -247,13 +247,13 @@ export default function Home() {
                   )}
 
                   <div
-                    className={`group relative max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 shadow-sm text-sm leading-relaxed ${
+                    className={`group relative max-w-[85%] sm:max-w-[80%] rounded-2xl p-4 shadow-sm text-sm leading-relaxed ${
                       m.role === "user"
                         ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-tr-none glow-cyan"
                         : "glass-card text-slate-100 border border-slate-800/80 rounded-tl-none"
                     }`}
                   >
-                    <div className="whitespace-pre-wrap">{m.content}</div>
+                    <div className="whitespace-pre-wrap break-words">{m.content}</div>
                     {m.timestamp && (
                       <div
                         className={`text-[10px] mt-2 opacity-60 flex items-center justify-end ${
@@ -274,7 +274,7 @@ export default function Home() {
               ))}
 
               {loading && (
-                <div className="flex gap-3 sm:gap-4 justify-start">
+                <div className="flex gap-3 sm:gap-4 justify-start items-start">
                   <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-cyan-500/20 animate-pulse">
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -297,7 +297,7 @@ export default function Home() {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 sm:p-6 border-t border-slate-800/40 glass-panel">
+        <div className="p-4 sm:p-6 border-t border-slate-800/40 glass-panel shrink-0">
           <div className="max-w-3xl mx-auto relative flex items-center">
             <input
               type="text"
