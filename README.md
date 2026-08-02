@@ -1,61 +1,71 @@
 <div align="center">
 
-# ⚡ Aura AI - Next-Gen Intelligent Chatbot
+# ⚡ Nexus AI Engine - Next-Gen Intelligent Search & Chatbot
 
-  <p align="center">
-    A visually stunning, ultra-fast, glassmorphic AI Assistant built with <b>Next.js 16</b>, <b>Tailwind CSS v4</b>, and <b>Google Gemini AI</b>.
-  </p>
+<p align="center">
+  A visually stunning, glassmorphic AI Assistant & Search Engine built with <b>Next.js 16</b>, <b>React 19</b>, <b>Tailwind CSS v4</b>, and <b>Google Gemini 3.6 Flash AI</b>.
+</p>
 
-  <p align="center">
-    <a href="https://my-ai-chatbot-ten-roan.vercel.app">
-      <img src="https://img.shields.io/badge/Live%20Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
-    </a>
-    <a href="https://nextjs.org">
-      <img src="https://img.shields.io/badge/Framework-Next.js%2016-black?style=for-the-badge&logo=next.js" alt="Next.js" />
-    </a>
-    <a href="https://tailwindcss.com">
-      <img src="https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-    </a>
-    <a href="https://ai.google.dev/">
-      <img src="https://img.shields.io/badge/AI%20Engine-Google%20Gemini-8e44ad?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
-    </a>
-  </p>
+<p align="center">
+  <a href="https://my-ai-chatbot-ten-roan.vercel.app">
+    <img src="https://img.shields.io/badge/Live%20Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+  </a>
+  <a href="https://nextjs.org">
+    <img src="https://img.shields.io/badge/Framework-Next.js%2016-black?style=for-the-badge&logo=next.js" alt="Next.js 16" />
+  </a>
+  <a href="https://react.dev">
+    <img src="https://img.shields.io/badge/UI-React%2019-61dafb?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
+  </a>
+  <a href="https://tailwindcss.com">
+    <img src="https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  </a>
+  <a href="https://ai.google.dev/">
+    <img src="https://img.shields.io/badge/AI%20Engine-Gemini%203.6%20Flash-8e44ad?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
+  </a>
+</p>
 
 </div>
 
 ---
 
-## ✨ Features
+## 🚀 Live Production Deployment
 
-- 🎨 **Glassmorphism & Cyberpunk Glow**: Sleek dark slate layout featuring dynamic ambient lighting orbs and blur filters.
-- ⚡ **Next-Gen Performance**: Built on Next.js 16 App Router & Turbopack.
-- 💡 **Starter Suggestion Cards**: Preset prompt tiles for instant brainstorming, coding, and productivity workflows.
-- 📱 **Fully Responsive Sidebar**: Collapsible navigation bar optimized for mobile and desktop screens.
-- 💬 **Real-time Thinking Indicators**: Animated bouncing loading dots and status badges ("Gemini Engine Ready").
-- 🔒 **Graceful Error Handling**: Clear user feedback for missing environment variables or API connectivity issues.
-
----
-
-## 🚀 Live Demo
-
-Check out the live deployment on Vercel:  
 🔗 **[https://my-ai-chatbot-ten-roan.vercel.app](https://my-ai-chatbot-ten-roan.vercel.app)**
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Real Tech Stack & Architecture
 
-| Technology | Purpose |
-| :--- | :--- |
-| **[Next.js 16](https://nextjs.org)** | React Framework & App Router |
-| **[React 19](https://react.dev)** | UI Library |
-| **[Tailwind CSS v4](https://tailwindcss.com)** | Modern Styling & Custom Utility Classes |
-| **[Google Generative AI SDK](https://www.npmjs.com/package/@google/generative-ai)** | Gemini AI API Integration |
-| **[TypeScript](https://www.typescriptlang.org)** | Type Safety |
+### 🌐 Frontend & User Interface
+- **[Next.js 16](https://nextjs.org)**: React Framework with App Router & Turbopack bundler for lightning-fast server side rendering and static generation.
+- **[React 19](https://react.dev)**: State management, Hooks (`useState`, `useEffect`, `useRef`), and seamless component rendering.
+- **[TypeScript 5](https://www.typescriptlang.org)**: Strictly-typed code structure for robust safety across components and API routes.
+- **[Tailwind CSS v4](https://tailwindcss.com)**: Cutting-edge styling engine, custom utilities, ambient neon lighting orbs, and glassmorphism.
+- **Custom Tech Watermarks**: Integrated high-resolution technology schematic and neural mesh watermark graphics.
+
+### ⚡ Backend & AI Intelligence Engine
+- **[Node.js Serverless Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)**: API endpoints handling asynchronous JSON payload validation and response streaming.
+- **[Google Generative AI SDK (`@google/generative-ai`)](https://www.npmjs.com/package/@google/generative-ai)**: Core integration powering multi-turn chat memory and real-time generation using **Gemini 3.6 Flash**.
+- **[Anthropic AI SDK (`@anthropic-ai/sdk`)](https://www.npmjs.com/package/@anthropic-ai/sdk)**: Integrated SDK infrastructure ready for multi-model fallback support.
+- **Stateful History Parsing**: Transforms frontend message arrays into structured Gemini historical dialogue parts (`user` / `model`).
+
+### ☁️ Infrastructure & Deployment
+- **[Vercel Cloud Platform](https://vercel.com)**: Continuous deployment pipeline with serverless function execution and zero-downtime builds.
+- **Git & GitHub**: Version control and automated repository workflow.
 
 ---
 
-## 📦 Getting Started Locally
+## ✨ Key Features
+
+- 🎨 **Enhanced Dark & Light Modes**: Futuristic `#080d1a` dark mode featuring ambient neon glowing orbs, backdrop blurs, and glassmorphism cards.
+- 🖼️ **Technology Watermark Graphics**: Custom-crafted backend architecture topology & schematic background watermark overlays.
+- ⚡ **Multi-Turn Chat History**: Preserves conversation context across turn-by-turn queries powered by Google Gemini.
+- 🔒 **Secure API Environment Setup**: Clean server-side API key isolation guarding secret credentials from client expose.
+- 📱 **Fully Responsive Layout**: Built from the ground up for desktop, tablet, and mobile browsers.
+
+---
+
+## 📦 Project Setup
 
 ### 1. Clone the repository
 ```bash
@@ -68,18 +78,16 @@ cd my-ai-chatbot
 npm install
 ```
 
-### 3. Set up environment variables
+### 3. Configure Environment Variables
 Create a `.env.local` file in the root directory:
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key_here
 ```
 
-### 4. Run the development server
+### 4. Build & Run
 ```bash
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to see your app running!
 
 ---
 
@@ -88,5 +96,5 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see your 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
-  <sub>Crafted with ❤️ for an elevated AI chat experience.</sub>
+  <sub>Crafted with ❤️ for an elevated AI chat & search experience.</sub>
 </div>
