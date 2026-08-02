@@ -191,40 +191,6 @@ export default function Home() {
                 Powered by full-stack backend neural stream topology & high-speed vector embeddings.
               </p>
             </div>
-
-            {/* Quick Backend Technology Badges */}
-            <div className="flex flex-wrap justify-center gap-2 max-w-lg pt-1">
-              {["⚡ API Gateway", "🧠 Neural Matrix", "🗄️ Vector DB", "🔒 End-to-End Encryption"].map((badge, i) => (
-                <span
-                  key={i}
-                  className={`px-3 py-1 rounded-full text-xs font-mono border transition-all ${
-                    theme === "dark"
-                      ? "bg-slate-900/80 border-cyan-500/40 text-cyan-300 shadow-md glow-cyan"
-                      : "bg-white border-slate-200 text-slate-700 shadow-xs"
-                  }`}
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-
-            {/* Prompt Suggestions */}
-            <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 text-left">
-              {SUGGESTIONS.map((prompt, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => handleSearch(e, prompt)}
-                  className={`p-3.5 rounded-xl border text-xs leading-relaxed transition-all duration-200 flex items-start space-x-2 group ${
-                    theme === "dark"
-                      ? "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-cyan-500/60 hover:bg-slate-800/90 hover:text-white"
-                      : "bg-white border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50 shadow-xs"
-                  }`}
-                >
-                  <span className="text-cyan-400 font-mono text-sm group-hover:translate-x-0.5 transition-transform">›</span>
-                  <span>{prompt}</span>
-                </button>
-              ))}
-            </div>
           </div>
         ) : (
           <div className="space-y-6 overflow-y-auto max-h-[62vh] pr-2 scrollbar-thin">
