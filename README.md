@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ Nexus AI Engine - Next-Gen Intelligent Search & Chatbot
+# ⚡ Cognito AI Engine - Intelligent Search & Neural Assistant
 
 <p align="center">
   A visually stunning, glassmorphic AI Assistant & Search Engine built with <b>Next.js 16</b>, <b>React 19</b>, <b>Tailwind CSS v4</b>, and <b>Google Gemini 3.6 Flash AI</b>.
@@ -41,7 +41,7 @@
 - **[React 19](https://react.dev)**: State management, Hooks (`useState`, `useEffect`, `useRef`), and seamless component rendering.
 - **[TypeScript 5](https://www.typescriptlang.org)**: Strictly-typed code structure for robust safety across components and API routes.
 - **[Tailwind CSS v4](https://tailwindcss.com)**: Cutting-edge styling engine, custom utilities, ambient neon lighting orbs, and glassmorphism.
-- **Custom Tech Watermarks**: Integrated high-resolution technology schematic and neural mesh watermark graphics.
+- **Cognito Watermark System**: Integrated high-resolution technology schematic and neural mesh watermark graphics.
 
 ### ⚡ Backend & AI Intelligence Engine
 - **[Node.js Serverless Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)**: API endpoints handling asynchronous JSON payload validation and response streaming.
@@ -57,37 +57,12 @@
 
 ## ✨ Key Features
 
-- 🎨 **Enhanced Dark & Light Modes**: Futuristic `#080d1a` dark mode featuring ambient neon glowing orbs, backdrop blurs, and glassmorphism cards.
+- 🎨 **Enhanced Dark & Light Themes**: Sleek dark mode and high-contrast light mode with ambient glowing orbs, backdrop blurs, and glassmorphism panels.
+- 🏷️ **Cognito Branding**: Custom **Cognito** neural logo badge and header branding.
 - 🖼️ **Technology Watermark Graphics**: Custom-crafted backend architecture topology & schematic background watermark overlays.
 - ⚡ **Multi-Turn Chat History**: Preserves conversation context across turn-by-turn queries powered by Google Gemini.
-- 🔒 **Secure API Environment Setup**: Clean server-side API key isolation guarding secret credentials from client expose.
+- 🔒 **Secure API Environment Setup**: Clean server-side API key isolation guarding secret credentials from client exposure.
 - 📱 **Fully Responsive Layout**: Built from the ground up for desktop, tablet, and mobile browsers.
-
----
-
-## 📦 Project Setup
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/arpanbasak90-cyber/my-ai-chatbot.git
-cd my-ai-chatbot
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Configure Environment Variables
-Create a `.env.local` file in the root directory:
-```env
-GEMINI_API_KEY=your_google_gemini_api_key_here
-```
-
-### 4. Build & Run
-```bash
-npm run dev
-```
 
 ---
 
@@ -96,5 +71,5 @@ npm run dev
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
-  <sub>Crafted with ❤️ for an elevated AI chat & search experience.</sub>
+  <sub>Crafted with ❤️ for an elevated Cognito AI chat & search experience.</sub>
 </div>

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Workspace - Next Gen Intelligent Chatbot",
-  description: "Experience effortless conversations powered by advanced AI intelligence.",
+  title: "Cognito AI - Intelligent Search & Neural Engine",
+  description: "Experience effortless conversations powered by Cognito AI intelligence.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased dark">
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-white">
+      <body className="min-h-full flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
         {children}
       </body>
     </html>
