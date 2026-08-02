@@ -143,7 +143,7 @@ export default function Home() {
             </span>
           </div>
           <div>
-            <h1 className={`text-xl font-black tracking-tight bg-clip-text text-transparent ${
+            <h1 className={`text-xl font-black tracking-tight pb-0.5 inline-block leading-normal bg-clip-text text-transparent ${
               theme === "dark"
                 ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
                 : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
@@ -219,7 +219,7 @@ export default function Home() {
             </div>
 
             <div className="max-w-xl space-y-3">
-              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight bg-clip-text text-transparent ${
+              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight pb-3 inline-block leading-normal bg-clip-text text-transparent ${
                 theme === "dark"
                   ? "bg-gradient-to-r from-white via-slate-100 to-cyan-300"
                   : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-700"
