@@ -12,6 +12,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
@@ -28,8 +34,85 @@ export default function Home() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setSpeechSupported(true);
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
+
+        recognition.onstart = () => {
+          setIsListening(true);
+          setSpeechError(null);
+        };
+
+        recognition.onresult = (event: any) => {
+          let transcript = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          setInput(transcript);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error("Speech recognition error:", event.error);
+          setIsListening(false);
+          if (event.error !== "no-speech") {
+            setSpeechError(`Voice error: ${event.error}`);
+          }
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!speechSupported || !recognitionRef.current) {
+      alert("Speech recognition is not supported in this browser. Please try Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        setSpeechError(null);
+        recognitionRef.current.start();
+      } catch (e) {
+        console.error("Failed to start speech recognition:", e);
+      }
+    }
+  };
+
+  const speakText = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const cleanText = text.replace(/[*#_`]/g, "");
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
     const query = input.trim();
     if (!query || loading) return;
 
@@ -45,9 +128,10 @@ export default function Home() {
         body: JSON.stringify({ messages: newMessages }),
       });
       const data = await res.json();
+      const replyText = data.reply || data.error || "No response received from Cognito server.";
       setMessages([
         ...newMessages,
-        { role: "assistant", content: data.reply || data.error || "No response received from Cognito server." },
+        { role: "assistant", content: replyText },
       ]);
     } catch (err) {
       console.error(err);
@@ -156,7 +240,7 @@ export default function Home() {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-semibold">BACKEND ONLINE</span>
               <span className={theme === "dark" ? "text-slate-500" : "text-slate-400"}>•</span>
-              <span className={theme === "dark" ? "text-slate-400" : "text-slate-600"}>v2.4 Neural Mesh</span>
+              <span className={theme === "dark" ? "text-slate-400" : "text-slate-600"}>v2.4 Voice Mesh</span>
             </div>
           </div>
         </div>
@@ -224,12 +308,12 @@ export default function Home() {
                   ? "bg-gradient-to-r from-white via-slate-100 to-cyan-300"
                   : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-700"
               }`}>
-                Cognito
+                Cognito Voice AI
               </h2>
               <p className={`text-sm sm:text-base font-medium ${
                 theme === "dark" ? "text-slate-300" : "text-slate-700"
               }`}>
-                Ask anything. Powered by Cognito full-stack neural stream topology & high-speed vector embeddings.
+                Type or tap the microphone inside the search bar to speak directly to Cognito AI.
               </p>
             </div>
           </div>
@@ -269,15 +353,32 @@ export default function Home() {
                       {m.role === "user" ? "User Query" : "Cognito Response"}
                     </span>
                   </div>
-                  {m.role === "assistant" && (
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
-                      theme === "dark"
-                        ? "text-cyan-400/90 bg-cyan-950/80 border-cyan-500/40"
-                        : "text-indigo-700 bg-indigo-50 border-indigo-200"
-                    }`}>
-                      Cognito Neural Stream
-                    </span>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    {m.role === "assistant" && (
+                      <>
+                        <button
+                          onClick={() => speakText(m.content)}
+                          className={`p-1 rounded-md transition-colors ${
+                            theme === "dark"
+                              ? "hover:bg-slate-800 text-cyan-400"
+                              : "hover:bg-slate-100 text-indigo-600"
+                          }`}
+                          title="Read out response aloud"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                          </svg>
+                        </button>
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                          theme === "dark"
+                            ? "text-cyan-400/90 bg-cyan-950/80 border-cyan-500/40"
+                            : "text-indigo-700 bg-indigo-50 border-indigo-200"
+                        }`}>
+                          Cognito Neural Stream
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div className="whitespace-pre-wrap leading-relaxed text-sm font-normal">
                   {m.content}
@@ -310,6 +411,17 @@ export default function Home() {
 
       {/* Input Search Form Area */}
       <footer className="relative z-20 w-full max-w-4xl pb-2">
+        {isListening && (
+          <div className="mb-2 flex items-center justify-center space-x-2 text-xs font-mono text-cyan-400 animate-pulse">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+            <span>Listening to your voice... Speak now!</span>
+          </div>
+        )}
+        {speechError && (
+          <div className="mb-2 text-center text-xs font-mono text-rose-400">
+            {speechError}
+          </div>
+        )}
         <form onSubmit={handleSearch} className="relative flex items-center">
           <div className="relative w-full group">
             {/* Glowing ring under focus */}
@@ -319,14 +431,35 @@ export default function Home() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask Cognito anything..."
+              placeholder={isListening ? "Listening..." : "Ask Cognito anything..."}
               disabled={loading}
-              className={`relative w-full py-4 pl-6 pr-16 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${
+              className={`relative w-full py-4 pl-6 pr-28 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${
                 theme === "dark"
                   ? "bg-slate-900/90 border border-slate-700/80 text-slate-100 placeholder-slate-400 focus:border-cyan-400 focus:bg-slate-900 shadow-2xl"
                   : "bg-white border border-slate-300/90 text-slate-900 placeholder-slate-500 focus:border-indigo-600 shadow-xl"
               }`}
             />
+
+            {/* Voice Assistant Microphone Button inside Search Bar */}
+            <button
+              type="button"
+              onClick={toggleListening}
+              disabled={loading}
+              className={`absolute right-14 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${
+                isListening
+                  ? "bg-red-500 text-white animate-bounce shadow-lg shadow-red-500/50"
+                  : theme === "dark"
+                  ? "bg-slate-800 text-cyan-400 hover:bg-slate-700 hover:text-cyan-300"
+                  : "bg-slate-100 text-indigo-600 hover:bg-slate-200 hover:text-indigo-800"
+              }`}
+              title={isListening ? "Stop Listening" : "Voice Assistant Search"}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7m-7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            </button>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={!input.trim() || loading}
@@ -342,7 +475,7 @@ export default function Home() {
         <div className={`mt-2 text-center text-[11px] font-mono ${
           theme === "dark" ? "text-slate-400" : "text-slate-600 font-medium"
         }`}>
-          Cognito Neural Mesh Engine • Real-time Stream
+          Cognito Voice Assistant • Web Speech Engine Active
         </div>
       </footer>
     </div>
