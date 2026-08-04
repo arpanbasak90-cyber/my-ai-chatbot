@@ -418,8 +418,10 @@ export default function Home() {
           </div>
         )}
         {speechError && (
-          <div className="mb-2 text-center text-xs font-mono text-rose-400">
-            {speechError}
+          <div className="mb-2 text-center text-xs font-mono text-rose-400 bg-rose-950/40 py-1 px-3 rounded-lg border border-rose-500/30 max-w-md mx-auto">
+            {speechError.includes("not-allowed")
+              ? "⚠️ Microphone access denied by browser! Please click the lock 🔒 icon in your address bar and allow Microphone permissions."
+              : speechError}
           </div>
         )}
         <form onSubmit={handleSearch} className="relative flex items-center">
@@ -440,23 +442,31 @@ export default function Home() {
               }`}
             />
 
-            {/* Voice Assistant Microphone Button inside Search Bar */}
+            {/* Voice Assistant Futuristic Glowing Microphone Graphic Button inside Search Bar */}
             <button
               type="button"
               onClick={toggleListening}
               disabled={loading}
-              className={`absolute right-14 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${
+              className={`absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full p-1 border transition-all duration-300 flex items-center justify-center ${
                 isListening
-                  ? "bg-red-500 text-white animate-bounce shadow-lg shadow-red-500/50"
+                  ? "bg-red-500/20 border-red-500 animate-pulse shadow-lg shadow-red-500/50 scale-110"
                   : theme === "dark"
-                  ? "bg-slate-800 text-cyan-400 hover:bg-slate-700 hover:text-cyan-300"
-                  : "bg-slate-100 text-indigo-600 hover:bg-slate-200 hover:text-indigo-800"
+                  ? "bg-slate-900/90 border-cyan-500/40 hover:border-cyan-400 hover:scale-105 shadow-md shadow-cyan-950"
+                  : "bg-slate-100 border-indigo-300 hover:border-indigo-500 hover:scale-105 shadow-sm"
               }`}
               title={isListening ? "Stop Listening" : "Voice Assistant Search"}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7m-7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
+              <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                <Image
+                  src="/mic_icon.png"
+                  alt="Futuristic Voice Assistant Microphone"
+                  width={28}
+                  height={28}
+                  className={`object-contain transition-all duration-300 ${
+                    isListening ? "brightness-125 saturate-150 animate-bounce" : "hover:brightness-125"
+                  }`}
+                />
+              </div>
             </button>
 
             {/* Submit Button */}
