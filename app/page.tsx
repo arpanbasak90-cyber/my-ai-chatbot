@@ -190,33 +190,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* 3. PROMINENT WATERMARK GRAPHIC BADGE (ALWAYS VISIBLE IN BOTTOM CORNER) */}
-      <div className={`pointer-events-none fixed right-6 bottom-20 z-10 hidden md:flex items-center space-x-3 p-3 rounded-2xl border transition-colors duration-300 animate-float ${
-        theme === "dark"
-          ? "border-cyan-500/30 bg-slate-900/80 backdrop-blur-xl shadow-2xl"
-          : "border-slate-300/80 bg-white/95 backdrop-blur-xl shadow-xl"
-      }`}>
-        <div className={`relative w-14 h-14 rounded-xl overflow-hidden p-1 border ${
-          theme === "dark" ? "bg-slate-950 border-cyan-400/40" : "bg-slate-100 border-blue-400/50"
-        }`}>
-          <Image
-            src="/backend_watermark_nodes.png"
-            alt="Cognito Topology Watermark"
-            width={56}
-            height={56}
-            className="object-cover rounded-lg"
-          />
-        </div>
-        <div className="text-left font-mono">
-          <p className={`text-[11px] font-bold tracking-wider uppercase ${
-            theme === "dark" ? "text-cyan-300" : "text-indigo-600"
-          }`}>Cognito Watermark</p>
-          <p className={`text-[10px] ${theme === "dark" ? "text-slate-400" : "text-slate-600"}`}>
-            Neural Mesh Architecture
-          </p>
-        </div>
-      </div>
-
       {/* Header Bar */}
       <header className={`relative z-20 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
         theme === "dark"
