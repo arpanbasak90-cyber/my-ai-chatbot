@@ -108,6 +108,19 @@ export default function Home() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const handleNewChat = () => {
+    if (isSpeaking && typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setMessages([]);
+    setInput("");
+    setSpeechError(null);
+  };
+
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (isListening && recognitionRef.current) {
@@ -245,7 +258,23 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
+          {/* ChatGPT Style New Chat Button */}
+          <button
+            onClick={handleNewChat}
+            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
+              theme === "dark"
+                ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 hover:border-cyan-400 shadow-md glow-cyan"
+                : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
+            }`}
+            title="Start a new chat session"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="hidden sm:inline">New Chat</span>
+          </button>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
