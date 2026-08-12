@@ -1,9 +1,9 @@
 <div align="center">
 
-# ⚡ Cognito AI Engine - Intelligent Search & Neural Assistant
+# ⚡ Pragya AI (প্রজ্ঞা / प्रज्ञा) Engine - Intelligent Voice & Neural Assistant
 
 <p align="center">
-  A visually stunning, glassmorphic AI Assistant & Search Engine built with <b>Next.js 16</b>, <b>React 19</b>, <b>Tailwind CSS v4</b>, and <b>Google Gemini 3.6 Flash AI</b>.
+  A visually stunning, glassmorphic AI Assistant & Search Engine created by <b>Arpan Basak</b>. Built with <b>Next.js 16</b>, <b>React 19</b>, <b>Tailwind CSS v4</b>, and <b>Google Gemini 3.6 Flash AI</b>.
 </p>
 
 <p align="center">
@@ -28,6 +28,12 @@
 
 ---
 
+## 👨‍💻 Creator & Inventor
+
+**Pragya AI** was created and invented by **Arpan Basak**.
+
+---
+
 ## 🚀 Live Production Deployment
 
 🔗 **[https://my-ai-chatbot-ten-roan.vercel.app](https://my-ai-chatbot-ten-roan.vercel.app)**
@@ -41,7 +47,7 @@
 - **[React 19](https://react.dev)**: State management, Hooks (`useState`, `useEffect`, `useRef`), and seamless component rendering.
 - **[TypeScript 5](https://www.typescriptlang.org)**: Strictly-typed code structure for robust safety across components and API routes.
 - **[Tailwind CSS v4](https://tailwindcss.com)**: Cutting-edge styling engine, custom utilities, ambient neon lighting orbs, and glassmorphism.
-- **Cognito Watermark System**: Integrated high-resolution technology schematic and neural mesh watermark graphics.
+- **Pragya Watermark System**: Integrated high-resolution technology schematic and neural mesh watermark graphics.
 
 ### ⚡ Backend & AI Intelligence Engine
 - **[Node.js Serverless Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)**: API endpoints handling asynchronous JSON payload validation and response streaming.
@@ -57,12 +63,13 @@
 
 ## ✨ Key Features
 
+- 🧠 **Pragya AI Personality**: Custom persona recognizing **Arpan Basak** as its inventor across English, Bengali, Hindi, and 25+ global languages.
+- 🎙️ **Multilingual Voice Mesh**: Web Speech API voice input and text-to-speech reading in Bengali, Hindi, English, and more.
 - 🎨 **Enhanced Dark & Light Themes**: Sleek dark mode and high-contrast light mode with ambient glowing orbs, backdrop blurs, and glassmorphism panels.
-- 🏷️ **Cognito Branding**: Custom **Cognito** neural logo badge and header branding.
+- 🏷️ **Pragya Branding**: Custom **Pragya AI** neural logo badge and header branding.
 - 🖼️ **Technology Watermark Graphics**: Custom-crafted backend architecture topology & schematic background watermark overlays.
 - ⚡ **Multi-Turn Chat History**: Preserves conversation context across turn-by-turn queries powered by Google Gemini.
 - 🔒 **Secure API Environment Setup**: Clean server-side API key isolation guarding secret credentials from client exposure.
-- 📱 **Fully Responsive Layout**: Built from the ground up for desktop, tablet, and mobile browsers.
 
 ---
 
@@ -71,5 +78,5 @@
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
-  <sub>Crafted with ❤️ for an elevated Cognito AI chat & search experience.</sub>
+  <sub>Crafted with ❤️ by Arpan Basak for an elevated Pragya AI chat & search experience.</sub>
 </div>

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cognito",
-  description: "Experience effortless conversations powered by Cognito intelligence.",
+  title: "Pragya AI",
+  description: "Experience effortles conversations powered by Pragya AI intelligence, created by Arpan Basak.",
 };
 
 export default function RootLayout({

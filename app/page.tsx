@@ -21,27 +21,27 @@ const LANGUAGES: LanguageOption[] = [
     countryCode: "us",
     name: "English",
     nativeName: "English",
-    placeholder: "Ask Cognito anything...",
+    placeholder: "Ask Pragya AI anything...",
     listeningText: "Listening to your voice...",
-    subtext: "Type or tap the microphone inside the search bar to speak directly to Cognito AI.",
+    subtext: "Type or tap the microphone inside the search bar to speak directly to Pragya AI.",
   },
   {
     code: "bn-IN",
     countryCode: "in",
     name: "Bengali",
     nativeName: "বাংলা",
-    placeholder: "কগনিটোকে যেকোনো কিছু জিজ্ঞাসা করুন...",
+    placeholder: "প্রজ্ঞাকে যেকোনো কিছু জিজ্ঞাসা করুন...",
     listeningText: "আপনার কথা শুনছি... এখন বলুন!",
-    subtext: "কগনিটোর সাথে কথা বলতে টাইপ করুন অথবা সার্চ বারের মাইক্রোফোনে আলতো চাপুন।",
+    subtext: "প্রজ্ঞার সাথে কথা বলতে টাইপ করুন অথবা সার্চ বারের মাইক্রোফোনে আলতো চাপুন।",
   },
   {
     code: "hi-IN",
     countryCode: "in",
     name: "Hindi",
     nativeName: "हिन्दी",
-    placeholder: "कॉग्निटो से कुछ भी पूछें...",
+    placeholder: "प्रज्ञा से कुछ भी पूछें...",
     listeningText: "आपकी आवाज़ सुन रहे हैं... अब बोलें!",
-    subtext: "कॉग्निटो एआई से बात करने के लिए टाइप करें या सर्च बार में माइक्रोफ़ोन पर टैप करें।",
+    subtext: "प्रज्ञा एआई से बात करने के लिए टाइप करें या सर्च बार में माइक्रोफ़ोन पर टैप करें।",
   },
   {
     code: "es-ES",
@@ -505,7 +505,7 @@ export default function Home() {
                 ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
                 : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
             }`}>
-              Cognito
+              Pragya AI
             </h1>
             <div className={`flex items-center space-x-2 text-[11px] font-mono ${
               theme === "dark" ? "text-cyan-400/90" : "text-indigo-600"
@@ -678,7 +678,7 @@ export default function Home() {
                   ? "bg-gradient-to-r from-white via-slate-100 to-cyan-300"
                   : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-700"
               }`}>
-                Cognito Voice AI
+                Pragya Voice AI
               </h2>
               <p className={`text-sm sm:text-base font-medium ${
                 theme === "dark" ? "text-slate-300" : "text-slate-700"
@@ -857,7 +857,7 @@ export default function Home() {
         <div className={`mt-2 text-center text-[11px] font-mono flex items-center justify-center space-x-2 ${
           theme === "dark" ? "text-slate-400" : "text-slate-600 font-medium"
         }`}>
-          <span>Cognito Voice Assistant</span>
+          <span>Pragya Voice Assistant</span>
           <span>•</span>
           <div className="inline-flex items-center space-x-1">
             <img
