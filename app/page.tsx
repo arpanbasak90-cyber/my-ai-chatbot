@@ -260,6 +260,11 @@ export default function Home() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
 
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>("");
+  const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState<boolean>(false);
+  const voiceMenuRef = useRef<HTMLDivElement>(null);
+
   const [attachedFile, setAttachedFile] = useState<{ fileName: string; text: string } | null>(null);
   const [parsingFile, setParsingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -275,7 +280,20 @@ export default function Home() {
     }
   }, [theme]);
 
-  // Close custom dropdown menu when clicking outside
+  // Load available system voices (Male / Female)
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const updateVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        setAvailableVoices(voices);
+      };
+
+      updateVoices();
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+  }, []);
+
+  // Close custom dropdown menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -283,6 +301,12 @@ export default function Home() {
         !langMenuRef.current.contains(event.target as Node)
       ) {
         setIsLangMenuOpen(false);
+      }
+      if (
+        voiceMenuRef.current &&
+        !voiceMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsVoiceMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -380,14 +404,20 @@ export default function Home() {
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = selectedLangCode;
 
-    const voices = window.speechSynthesis.getVoices();
-    const langPrefix = selectedLangCode.split("-")[0];
-    const matchingVoice =
-      voices.find((v) => v.lang === selectedLangCode) ||
-      voices.find((v) => v.lang.startsWith(langPrefix));
+    const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+    
+    // Find specifically selected voice or matching language voice
+    let voiceToUse = voices.find((v) => v.voiceURI === selectedVoiceURI);
+    
+    if (!voiceToUse) {
+      const langPrefix = selectedLangCode.split("-")[0];
+      voiceToUse =
+        voices.find((v) => v.lang === selectedLangCode) ||
+        voices.find((v) => v.lang.startsWith(langPrefix));
+    }
 
-    if (matchingVoice) {
-      utterance.voice = matchingVoice;
+    if (voiceToUse) {
+      utterance.voice = voiceToUse;
     }
 
     utterance.onend = () => setIsSpeaking(false);
@@ -521,7 +551,7 @@ export default function Home() {
             </span>
           </div>
           <div>
-            <h1 className={`text-xl font-black tracking-tight leading-none bg-clip-text text-transparent ${
+            <h1 className={`text-xl font-black tracking-tight leading-normal pb-1 inline-block bg-clip-text text-transparent ${
               theme === "dark"
                 ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
                 : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
@@ -532,6 +562,93 @@ export default function Home() {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-2.5">
+          {/* VOICE TONE SELECTION MENU (MALE / FEMALE) */}
+          <div className="relative" ref={voiceMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsVoiceMenuOpen((prev) => !prev)}
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${
+                theme === "dark"
+                  ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
+                  : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm"
+              }`}
+              title="Select Voice Tone (Male / Female)"
+            >
+              <svg className="w-3.5 h-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+              <span>
+                {selectedVoiceURI
+                  ? availableVoices.find((v) => v.voiceURI === selectedVoiceURI)?.name.split(" ")[0] || "Voice"
+                  : "Voice Tone"}
+              </span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${isVoiceMenuOpen ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Custom Voice Tone Dropdown Menu */}
+            {isVoiceMenuOpen && (
+              <div
+                className={`absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl p-1.5 shadow-2xl z-50 backdrop-blur-xl border scrollbar-thin ${
+                  theme === "dark"
+                    ? "bg-slate-900/95 border-cyan-500/40 text-slate-100 shadow-cyan-950/80"
+                    : "bg-white/95 border-slate-300 text-slate-900 shadow-slate-300/80"
+                }`}
+              >
+                <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-700/40 mb-1">
+                  Select AI Voice (Male / Female)
+                </div>
+                {availableVoices.length === 0 ? (
+                  <div className="p-3 text-xs text-slate-400 text-center">Loading browser voices...</div>
+                ) : (
+                  availableVoices.map((voice) => {
+                    const isSelected = voice.voiceURI === selectedVoiceURI;
+                    const isFemale = voice.name.toLowerCase().includes("female") || voice.name.toLowerCase().includes("zira") || voice.name.toLowerCase().includes("susan") || voice.name.toLowerCase().includes("samantha") || voice.name.toLowerCase().includes("karen") || voice.name.toLowerCase().includes("google uk english female");
+                    const isMale = voice.name.toLowerCase().includes("male") || voice.name.toLowerCase().includes("david") || voice.name.toLowerCase().includes("mark") || voice.name.toLowerCase().includes("george") || voice.name.toLowerCase().includes("google uk english male");
+
+                    return (
+                      <button
+                        key={voice.voiceURI}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVoiceURI(voice.voiceURI);
+                          setIsVoiceMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                          isSelected
+                            ? theme === "dark"
+                              ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                              : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                            : theme === "dark"
+                            ? "hover:bg-slate-800/80 text-slate-200"
+                            : "hover:bg-slate-100 text-slate-800"
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2 text-left truncate mr-2">
+                          <span>{isFemale ? "👩" : isMale ? "👨" : "🗣️"}</span>
+                          <div className="flex flex-col truncate">
+                            <span className="leading-tight truncate">{voice.name}</span>
+                            <span className="text-[10px] opacity-60 font-normal">{voice.lang}</span>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
           {/* CUSTOM FUTURISTIC LANGUAGE SELECTOR WITH REAL NATIONAL FLAG IMAGES */}
           <div className="relative" ref={langMenuRef}>
             <button
