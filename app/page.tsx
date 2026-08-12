@@ -533,19 +533,19 @@ export default function Home() {
           : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
       }`}>
         <div className="flex items-center space-x-3.5">
-          {/* Attractive Robot Mascot Logo */}
-          <div className="relative w-11 h-11 rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-indigo-600 to-cyan-400 shadow-md glow-cyan">
+          {/* Flower Logo */}
+          <div className="relative w-10 h-10 rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan">
             <Image
-              src="/cognito_robot_logo.png"
-              alt="Cognito Robot Logo"
-              width={44}
-              height={44}
+              src="/flower_logo.png"
+              alt="Pragya AI Flower Logo"
+              width={40}
+              height={40}
               priority
               className="object-cover rounded-xl"
             />
-            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+            <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
             </span>
           </div>
           <div>
@@ -690,29 +690,6 @@ export default function Home() {
       <main className="relative z-10 w-full max-w-4xl flex-1 flex flex-col justify-center my-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center space-y-6 my-auto px-4 py-6">
-            {/* Robot Mascot Hero Container */}
-            <div className="relative group">
-              <div className={`absolute -inset-3 rounded-full transition duration-500 animate-pulse-slow ${
-                theme === "dark"
-                  ? "bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 opacity-50 blur-2xl group-hover:opacity-85"
-                  : "bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 opacity-40 blur-xl group-hover:opacity-70"
-              }`} />
-              <div className={`relative w-44 h-44 sm:w-52 sm:h-52 rounded-full border-2 p-3 flex items-center justify-center shadow-2xl backdrop-blur-xl transition-all duration-300 ${
-                theme === "dark"
-                  ? "border-cyan-400/50 bg-slate-950/90"
-                  : "border-indigo-300/80 bg-white/95 shadow-indigo-100"
-              }`}>
-                <Image
-                  src="/cognito_robot_logo.png"
-                  alt="Cognito Robot Mascot"
-                  width={190}
-                  height={190}
-                  priority
-                  className="object-contain rounded-full filter drop-shadow-[0_0_20px_rgba(6,182,212,0.8)] animate-float"
-                />
-              </div>
-            </div>
-
             <div className="max-w-xl space-y-3">
               <h2 className={`text-4xl sm:text-6xl font-black tracking-tight pb-3 inline-block leading-normal bg-clip-text text-transparent ${
                 theme === "dark"
@@ -750,8 +727,8 @@ export default function Home() {
                     ) : (
                       <div className="relative w-6 h-6 rounded-md overflow-hidden border border-cyan-400/50">
                         <Image
-                          src="/cognito_robot_logo.png"
-                          alt="Cognito Robot Avatar"
+                          src="/flower_logo.png"
+                          alt="Pragya Flower Avatar"
                           width={24}
                           height={24}
                           className="object-cover"
