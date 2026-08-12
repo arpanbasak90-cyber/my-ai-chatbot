@@ -478,7 +478,7 @@ export default function Home() {
       )}
 
       {/* Header Bar */}
-      <header className={`relative z-20 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
+      <header className={`relative z-50 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
         theme === "dark"
           ? "glass-panel shadow-2xl border border-slate-800/80"
           : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
@@ -646,7 +646,7 @@ export default function Home() {
       </header>
 
       {/* Main Conversation & Watermark Hero Area */}
-      <main className="relative z-20 w-full max-w-4xl flex-1 flex flex-col justify-center my-6">
+      <main className="relative z-10 w-full max-w-4xl flex-1 flex flex-col justify-center my-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center space-y-6 my-auto px-4 py-6">
             {/* Robot Mascot Hero Container */}
