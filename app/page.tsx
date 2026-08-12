@@ -720,7 +720,7 @@ export default function Home() {
                     <span className={`text-xs font-semibold tracking-wide uppercase font-mono ${
                       m.role === "user" ? "opacity-80" : theme === "dark" ? "text-slate-300" : "text-slate-700"
                     }`}>
-                      {m.role === "user" ? "User Query" : "Cognito Response"}
+                      {m.role === "user" ? "User Query" : "Pragya Response"}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -746,7 +746,7 @@ export default function Home() {
                             ? "text-cyan-400/90 bg-cyan-950/80 border-cyan-500/40"
                             : "text-indigo-700 bg-indigo-50 border-indigo-200"
                         }`}>
-                          Cognito Neural Stream
+                          Pragya Neural Stream
                         </span>
                       </>
                     )}
