@@ -260,6 +260,10 @@ export default function Home() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
 
+  const [attachedFile, setAttachedFile] = useState<{ fileName: string; text: string } | null>(null);
+  const [parsingFile, setParsingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const currentLang =
     LANGUAGES.find((l) => l.code === selectedLangCode) || LANGUAGES[0];
 
@@ -403,6 +407,41 @@ export default function Home() {
     setMessages([]);
     setInput("");
     setSpeechError(null);
+    setAttachedFile(null);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setParsingFile(true);
+    setSpeechError(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/parse-document", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert(data.error || "Failed to process document.");
+      } else {
+        setAttachedFile({
+          fileName: data.fileName,
+          text: data.text,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading document.");
+    } finally {
+      setParsingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleSearch = async (e?: React.FormEvent) => {
@@ -414,8 +453,18 @@ export default function Home() {
     if (!query || loading) return;
 
     setInput("");
-    const newMessages: Message[] = [...messages, { role: "user", content: query }];
-    setMessages(newMessages);
+    
+    // Inject attached file content into user message context if present
+    let userContent = query;
+    if (attachedFile) {
+      userContent = `[ATTACHED DOCUMENT: "${attachedFile.fileName}"]\n${attachedFile.text}\n\n[USER QUESTION]\n${query}`;
+    }
+
+    const displayedQuery = attachedFile ? `📄 [${attachedFile.fileName}] ${query}` : query;
+
+    const newMessages: Message[] = [...messages, { role: "user", content: userContent }];
+    const displayMessages: Message[] = [...messages, { role: "user", content: displayedQuery }];
+    setMessages(displayMessages);
     setLoading(true);
 
     try {
@@ -430,13 +479,13 @@ export default function Home() {
       const data = await res.json();
       const replyText = data.reply || data.error || "No response received from Pragya server.";
       setMessages([
-        ...newMessages,
+        ...displayMessages,
         { role: "assistant", content: replyText },
       ]);
     } catch (err) {
       console.error(err);
       setMessages([
-        ...newMessages,
+        ...displayMessages,
         { role: "assistant", content: "⚠️ System offline or failed to reach the Pragya backend endpoint." },
       ]);
     } finally {
@@ -794,7 +843,43 @@ export default function Home() {
               : speechError}
           </div>
         )}
+        {/* Attached Document Indicator Badge */}
+        {attachedFile && (
+          <div className="mb-2 flex items-center justify-between px-3 py-1.5 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-mono max-w-lg mx-auto backdrop-blur-md">
+            <div className="flex items-center space-x-2 truncate">
+              <svg className="w-4 h-4 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="truncate font-semibold">{attachedFile.fileName}</span>
+              <span className="text-[10px] text-cyan-400/70">({attachedFile.text.length} chars)</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAttachedFile(null)}
+              className="ml-2 text-rose-400 hover:text-rose-300 p-0.5 rounded"
+              title="Remove document"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {parsingFile && (
+          <div className="mb-2 text-center text-xs font-mono text-cyan-400 animate-pulse">
+            ⚡ Parsing document content... Please wait.
+          </div>
+        )}
+
         <form onSubmit={handleSearch} className="relative flex items-center">
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.md,.json,.csv"
+            className="hidden"
+          />
+
           <div className="relative w-full group">
             {/* Glowing ring under focus */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-full blur-md opacity-35 group-hover:opacity-75 group-focus-within:opacity-100 transition duration-300" />
@@ -803,14 +888,33 @@ export default function Home() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isListening ? currentLang.listeningText : currentLang.placeholder}
-              disabled={loading}
-              className={`relative w-full py-4 pl-6 pr-28 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${
+              placeholder={attachedFile ? `Ask Pragya about "${attachedFile.fileName}"...` : isListening ? currentLang.listeningText : currentLang.placeholder}
+              disabled={loading || parsingFile}
+              className={`relative w-full py-4 pl-12 pr-28 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${
                 theme === "dark"
                   ? "bg-slate-900/90 border border-slate-700/80 text-slate-100 placeholder-slate-400 focus:border-cyan-400 focus:bg-slate-900 shadow-2xl"
                   : "bg-white border border-slate-300/90 text-slate-900 placeholder-slate-500 focus:border-indigo-600 shadow-xl"
               }`}
             />
+
+            {/* Document Upload Clip Button on Left */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading || parsingFile}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-200 ${
+                attachedFile
+                  ? "text-cyan-400 bg-cyan-500/20 border border-cyan-400/50"
+                  : theme === "dark"
+                  ? "text-slate-400 hover:text-cyan-300 hover:bg-slate-800"
+                  : "text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
+              }`}
+              title="Attach Document (PDF, DOCX, PPTX, TXT)"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
 
             {/* Voice Assistant Futuristic Glowing Microphone Graphic Button inside Search Bar */}
             <button
