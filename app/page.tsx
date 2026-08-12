@@ -494,37 +494,9 @@ export default function Home() {
   };
 
   return (
-    <div className={`relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 transition-colors duration-500 overflow-hidden ${
-      theme === "dark" ? "bg-[#080d1a] text-slate-100 tech-grid-bg" : "bg-white text-slate-900"
+    <div className={`relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 transition-colors duration-300 overflow-hidden ${
+      theme === "dark" ? "bg-[#0b0f17] text-slate-100" : "bg-white text-slate-900"
     }`}>
-      {/* 1. VISIBLE FULL-SCREEN BACKEND TECH WATERMARK BACKGROUND IMAGE */}
-      <div className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center overflow-hidden select-none">
-        <div className={`relative w-full h-full max-w-7xl transition-opacity duration-500 ${
-          theme === "dark" ? "opacity-25 contrast-125 brightness-110" : "opacity-5 contrast-100"
-        }`}>
-          <Image
-            src="/tech_watermark_bg.png"
-            alt="Cognito Technology Schematic Watermark"
-            fill
-            priority
-            className="object-contain scale-110"
-          />
-        </div>
-      </div>
-
-      {/* 2. DYNAMIC AMBIENT NEON GLOW ORBS (DARK MODE) */}
-      {theme === "dark" ? (
-        <div className="pointer-events-none fixed inset-0 z-0">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-cyan-500/15 rounded-full blur-[140px]" />
-          <div className="absolute bottom-20 left-10 w-[450px] h-[450px] bg-indigo-600/15 rounded-full blur-[130px]" />
-          <div className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-purple-600/15 rounded-full blur-[140px]" />
-        </div>
-      ) : (
-        <div className="pointer-events-none fixed inset-0 z-0">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-400/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-indigo-400/10 rounded-full blur-[120px]" />
-        </div>
-      )}
 
       {/* Header Bar */}
       <header className={`relative z-50 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
@@ -690,19 +662,37 @@ export default function Home() {
       <main className="relative z-10 w-full max-w-4xl flex-1 flex flex-col justify-center my-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center space-y-6 my-auto px-4 py-6">
+            {/* Big Flower Logo Hero Icon */}
+            <div className="relative group">
+              <div className={`absolute -inset-3 rounded-full transition duration-500 animate-pulse-slow ${
+                theme === "dark"
+                  ? "bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 opacity-50 blur-2xl group-hover:opacity-85"
+                  : "bg-gradient-to-r from-blue-300 via-indigo-200 to-cyan-300 opacity-60 blur-xl group-hover:opacity-80"
+              }`} />
+              <div className={`relative w-36 h-36 sm:w-44 sm:h-44 rounded-full border-2 p-3 flex items-center justify-center shadow-2xl backdrop-blur-xl transition-all duration-300 ${
+                theme === "dark"
+                  ? "border-cyan-400/50 bg-slate-950/90"
+                  : "border-indigo-300/80 bg-white shadow-indigo-100"
+              }`}>
+                <Image
+                  src="/flower_logo.png"
+                  alt="Pragya AI Flower Mascot"
+                  width={150}
+                  height={150}
+                  priority
+                  className="object-contain rounded-full filter drop-shadow-[0_0_20px_rgba(6,182,212,0.8)]"
+                />
+              </div>
+            </div>
+
             <div className="max-w-xl space-y-3">
-              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight pb-3 inline-block leading-normal bg-clip-text text-transparent ${
+              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight pb-2 inline-block leading-normal bg-clip-text text-transparent ${
                 theme === "dark"
                   ? "bg-gradient-to-r from-white via-slate-100 to-cyan-300"
                   : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-700"
               }`}>
-                Pragya Voice AI
+                Pragya AI
               </h2>
-              <p className={`text-sm sm:text-base font-medium ${
-                theme === "dark" ? "text-slate-300" : "text-slate-700"
-              }`}>
-                {currentLang.subtext}
-              </p>
             </div>
           </div>
         ) : (
@@ -927,22 +917,6 @@ export default function Home() {
             </button>
           </div>
         </form>
-        <div className={`mt-2 text-center text-[11px] font-mono flex items-center justify-center space-x-2 ${
-          theme === "dark" ? "text-slate-400" : "text-slate-600 font-medium"
-        }`}>
-          <span>Pragya Voice Assistant</span>
-          <span>•</span>
-          <div className="inline-flex items-center space-x-1">
-            <img
-              src={`https://flagcdn.com/w40/${currentLang.countryCode}.png`}
-              alt={currentLang.name}
-              className="w-4 h-3 object-cover rounded-sm border border-slate-500/40 inline-block"
-            />
-            <span>{currentLang.nativeName} ({currentLang.code})</span>
-          </div>
-          <span>•</span>
-          <span>Web Speech Engine Active</span>
-        </div>
       </footer>
     </div>
   );
