@@ -11,13 +11,20 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const { messages } = await req.json();
+    const { messages, language } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ reply: "Please provide a valid message." }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+    const systemInstruction = language
+      ? `You are Cognito, an advanced futuristic AI assistant. The user's preferred language is ${language}. Respond primarily in ${language} (or in the language the user speaks to you), while keeping responses helpful, intelligent, and formatted cleanly.`
+      : "You are Cognito, an advanced futuristic AI assistant. Respond helpfully and intelligently.";
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-3.6-flash",
+      systemInstruction,
+    });
 
     // Format chat history
     const history = messages.slice(0, -1).map((m: any) => ({

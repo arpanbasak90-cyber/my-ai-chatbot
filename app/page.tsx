@@ -5,8 +5,121 @@ import Image from "next/image";
 
 type Message = { role: "user" | "assistant"; content: string };
 
+type LanguageOption = {
+  code: string; // BCP-47 tag for Speech API
+  name: string;
+  nativeName: string;
+  flag: string;
+  placeholder: string;
+  listeningText: string;
+  subtext: string;
+};
+
+const LANGUAGES: LanguageOption[] = [
+  {
+    code: "en-US",
+    name: "English",
+    nativeName: "English",
+    flag: "🇺🇸",
+    placeholder: "Ask Cognito anything...",
+    listeningText: "Listening to your voice...",
+    subtext: "Type or tap the microphone inside the search bar to speak directly to Cognito AI.",
+  },
+  {
+    code: "bn-IN",
+    name: "Bengali",
+    nativeName: "বাংলা",
+    flag: "🇮🇳",
+    placeholder: "কগনিটোকে যেকোনো কিছু জিজ্ঞাসা করুন...",
+    listeningText: "আপনার কথা শুনছি... এখন বলুন!",
+    subtext: "কগনিটোর সাথে কথা বলতে টাইপ করুন অথবা সার্চ বারের মাইক্রোফোনে আলতো চাপুন।",
+  },
+  {
+    code: "hi-IN",
+    name: "Hindi",
+    nativeName: "हिन्दी",
+    flag: "🇮🇳",
+    placeholder: "कॉग्निटो से कुछ भी पूछें...",
+    listeningText: "आपकी आवाज़ सुन रहे हैं... अब बोलें!",
+    subtext: "कॉग्निटो एआई से बात करने के लिए टाइप करें या सर्च बार में माइक्रोफ़ोन पर टैप करें।",
+  },
+  {
+    code: "es-ES",
+    name: "Spanish",
+    nativeName: "Español",
+    flag: "🇪🇸",
+    placeholder: "Pregúntale a Cognito lo que sea...",
+    listeningText: "Escuchando tu voz... ¡Habla ahora!",
+    subtext: "Escribe o toca el micrófono en la barra de búsqueda para hablar con Cognito AI.",
+  },
+  {
+    code: "fr-FR",
+    name: "French",
+    nativeName: "Français",
+    flag: "🇫🇷",
+    placeholder: "Demandez n'importe quoi à Cognito...",
+    listeningText: "À l'écoute de votre voix... Parlez maintenant!",
+    subtext: "Tapez ou appuyez sur le microphone dans la barre de recherche pour parler à Cognito AI.",
+  },
+  {
+    code: "de-DE",
+    name: "German",
+    nativeName: "Deutsch",
+    flag: "🇩🇪",
+    placeholder: "Fragen Sie Cognito etwas...",
+    listeningText: "Höre deiner Stimme zu... Sprich jetzt!",
+    subtext: "Geben Sie Ihren Text ein oder tippen Sie auf das Mikrofon, um mit Cognito AI zu sprechen.",
+  },
+  {
+    code: "ja-JP",
+    name: "Japanese",
+    nativeName: "日本語",
+    flag: "🇯🇵",
+    placeholder: "Cognitoに何でも質問してください...",
+    listeningText: "音声を聞き取っています... 今すぐ話し始めてください！",
+    subtext: "Cognito AIと会話するには、メッセージを入力するかマイクをタップしてください。",
+  },
+  {
+    code: "zh-CN",
+    name: "Chinese",
+    nativeName: "中文",
+    flag: "🇨🇳",
+    placeholder: "向 Cognito 提问任何问题...",
+    listeningText: "正在聆听您的声音... 请说话！",
+    subtext: "输入文字或点击搜索栏中的麦克风直接与 Cognito AI 交谈。",
+  },
+  {
+    code: "ar-SA",
+    name: "Arabic",
+    nativeName: "العربية",
+    flag: "🇸🇦",
+    placeholder: "اسأل كوغنيتو أي شيء...",
+    listeningText: "جاري الاستماع إلى صوتك... تحدث الآن!",
+    subtext: "اكتب أو انقر على الميكروفون في شريط البحث للتحدث مباشرة إلى Cognito AI.",
+  },
+  {
+    code: "ru-RU",
+    name: "Russian",
+    nativeName: "Русский",
+    flag: "🇷🇺",
+    placeholder: "Спросите Cognito о чем угодно...",
+    listeningText: "Слушаю ваш голос... Говорите!",
+    subtext: "Введите текст или нажмите на микрофон в строке поиска, чтобы поговорить с Cognito AI.",
+  },
+  {
+    code: "pt-BR",
+    name: "Portuguese",
+    nativeName: "Português",
+    flag: "🇧🇷",
+    placeholder: "Pergunte qualquer coisa ao Cognito...",
+    listeningText: "Ouvindo sua voz... Fale agora!",
+    subtext: "Digite ou toque no microfone na barra de pesquisa para falar com Cognito AI.",
+  },
+];
+
 export default function Home() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [selectedLangCode, setSelectedLangCode] = useState<string>("en-US");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -17,6 +130,9 @@ export default function Home() {
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
+
+  const currentLang =
+    LANGUAGES.find((l) => l.code === selectedLangCode) || LANGUAGES[0];
 
   useEffect(() => {
     if (theme === "dark") {
@@ -34,16 +150,27 @@ export default function Home() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  // Initialize and re-bind speech recognition when selected language changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition =
         (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         setSpeechSupported(true);
+
+        // Stop existing recognition instance if running
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.abort();
+          } catch (e) {
+            // ignore
+          }
+        }
+
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = true;
-        recognition.lang = "en-US";
+        recognition.lang = selectedLangCode;
 
         recognition.onstart = () => {
           setIsListening(true);
@@ -73,7 +200,7 @@ export default function Home() {
         recognitionRef.current = recognition;
       }
     }
-  }, []);
+  }, [selectedLangCode]);
 
   const toggleListening = () => {
     if (!speechSupported || !recognitionRef.current) {
@@ -86,6 +213,7 @@ export default function Home() {
     } else {
       try {
         setSpeechError(null);
+        recognitionRef.current.lang = selectedLangCode;
         recognitionRef.current.start();
       } catch (e) {
         console.error("Failed to start speech recognition:", e);
@@ -102,6 +230,19 @@ export default function Home() {
     }
     const cleanText = text.replace(/[*#_`]/g, "");
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = selectedLangCode;
+
+    // Try to pick a native voice for the selected language
+    const voices = window.speechSynthesis.getVoices();
+    const langPrefix = selectedLangCode.split("-")[0];
+    const matchingVoice =
+      voices.find((v) => v.lang === selectedLangCode) ||
+      voices.find((v) => v.lang.startsWith(langPrefix));
+
+    if (matchingVoice) {
+      utterance.voice = matchingVoice;
+    }
+
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
     setIsSpeaking(true);
@@ -138,7 +279,10 @@ export default function Home() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({
+          messages: newMessages,
+          language: currentLang.name,
+        }),
       });
       const data = await res.json();
       const replyText = data.reply || data.error || "No response received from Cognito server.";
@@ -231,11 +375,40 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center space-x-2 sm:space-x-2.5">
+          {/* Language Selector Dropdown */}
+          <div className="relative flex items-center">
+            <select
+              value={selectedLangCode}
+              onChange={(e) => setSelectedLangCode(e.target.value)}
+              aria-label="Select Language"
+              className={`appearance-none cursor-pointer pl-3 pr-7 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${
+                theme === "dark"
+                  ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan focus:ring-1 focus:ring-cyan-400"
+                  : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm focus:ring-1 focus:ring-indigo-500"
+              }`}
+            >
+              {LANGUAGES.map((lang) => (
+                <option
+                  key={lang.code}
+                  value={lang.code}
+                  className={theme === "dark" ? "bg-slate-900 text-slate-100" : "bg-white text-slate-900"}
+                >
+                  {lang.flag} {lang.nativeName} ({lang.name})
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute right-2 flex items-center text-current opacity-70">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
           {/* ChatGPT Style New Chat Button */}
           <button
             onClick={handleNewChat}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
               theme === "dark"
                 ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 hover:border-cyan-400 shadow-md glow-cyan"
                 : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
@@ -251,7 +424,7 @@ export default function Home() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
+            className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
               theme === "dark"
                 ? "bg-slate-900/80 border-slate-700/80 text-amber-300 hover:border-cyan-500/50 hover:bg-slate-800 shadow-md glow-cyan"
                 : "bg-white border-slate-300 text-slate-800 hover:bg-slate-100 shadow-sm"
@@ -263,14 +436,14 @@ export default function Home() {
                 <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                <span>Light</span>
+                <span className="hidden md:inline">Light</span>
               </>
             ) : (
               <>
                 <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
-                <span>Dark</span>
+                <span className="hidden md:inline">Dark</span>
               </>
             )}
           </button>
@@ -315,7 +488,7 @@ export default function Home() {
               <p className={`text-sm sm:text-base font-medium ${
                 theme === "dark" ? "text-slate-300" : "text-slate-700"
               }`}>
-                Type or tap the microphone inside the search bar to speak directly to Cognito AI.
+                {currentLang.subtext}
               </p>
             </div>
           </div>
@@ -361,11 +534,13 @@ export default function Home() {
                         <button
                           onClick={() => speakText(m.content)}
                           className={`p-1 rounded-md transition-colors ${
-                            theme === "dark"
+                            isSpeaking
+                              ? "bg-amber-500/20 text-amber-400 animate-pulse"
+                              : theme === "dark"
                               ? "hover:bg-slate-800 text-cyan-400"
                               : "hover:bg-slate-100 text-indigo-600"
                           }`}
-                          title="Read out response aloud"
+                          title={`Read aloud in ${currentLang.nativeName}`}
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
@@ -416,7 +591,7 @@ export default function Home() {
         {isListening && (
           <div className="mb-2 flex items-center justify-center space-x-2 text-xs font-mono text-cyan-400 animate-pulse">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-            <span>Listening to your voice... Speak now!</span>
+            <span>{currentLang.listeningText}</span>
           </div>
         )}
         {speechError && (
@@ -435,7 +610,7 @@ export default function Home() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isListening ? "Listening..." : "Ask Cognito anything..."}
+              placeholder={isListening ? currentLang.listeningText : currentLang.placeholder}
               disabled={loading}
               className={`relative w-full py-4 pl-6 pr-28 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${
                 theme === "dark"
@@ -456,7 +631,7 @@ export default function Home() {
                   ? "bg-slate-900/90 border-cyan-500/40 hover:border-cyan-400 hover:scale-105 shadow-md shadow-cyan-950"
                   : "bg-slate-100 border-indigo-300 hover:border-indigo-500 hover:scale-105 shadow-sm"
               }`}
-              title={isListening ? "Stop Listening" : "Voice Assistant Search"}
+              title={isListening ? "Stop Listening" : `Voice Assistant (${currentLang.name})`}
             >
               <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                 <Image
@@ -484,10 +659,14 @@ export default function Home() {
             </button>
           </div>
         </form>
-        <div className={`mt-2 text-center text-[11px] font-mono ${
+        <div className={`mt-2 text-center text-[11px] font-mono flex items-center justify-center space-x-1.5 ${
           theme === "dark" ? "text-slate-400" : "text-slate-600 font-medium"
         }`}>
-          Cognito Voice Assistant • Web Speech Engine Active
+          <span>Cognito Voice Assistant</span>
+          <span>•</span>
+          <span>{currentLang.flag} {currentLang.nativeName} ({currentLang.code})</span>
+          <span>•</span>
+          <span>Web Speech Engine Active</span>
         </div>
       </footer>
     </div>
