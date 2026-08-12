@@ -244,7 +244,7 @@ const LANGUAGES: LanguageOption[] = [
 ];
 
 export default function Home() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   const [selectedLangCode, setSelectedLangCode] = useState<string>("en-US");
   const [isLangMenuOpen, setIsLangMenuOpen] = useState<boolean>(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
@@ -495,12 +495,12 @@ export default function Home() {
 
   return (
     <div className={`relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 transition-colors duration-500 overflow-hidden ${
-      theme === "dark" ? "bg-[#080d1a] text-slate-100 tech-grid-bg" : "bg-slate-100 text-slate-900 light-grid-bg"
+      theme === "dark" ? "bg-[#080d1a] text-slate-100 tech-grid-bg" : "bg-white text-slate-900"
     }`}>
       {/* 1. VISIBLE FULL-SCREEN BACKEND TECH WATERMARK BACKGROUND IMAGE */}
       <div className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center overflow-hidden select-none">
         <div className={`relative w-full h-full max-w-7xl transition-opacity duration-500 ${
-          theme === "dark" ? "opacity-25 contrast-125 brightness-110" : "opacity-20 contrast-125 brightness-95"
+          theme === "dark" ? "opacity-25 contrast-125 brightness-110" : "opacity-5 contrast-100"
         }`}>
           <Image
             src="/tech_watermark_bg.png"
