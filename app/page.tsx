@@ -428,7 +428,7 @@ export default function Home() {
         }),
       });
       const data = await res.json();
-      const replyText = data.reply || data.error || "No response received from Cognito server.";
+      const replyText = data.reply || data.error || "No response received from Pragya server.";
       setMessages([
         ...newMessages,
         { role: "assistant", content: replyText },
@@ -437,7 +437,7 @@ export default function Home() {
       console.error(err);
       setMessages([
         ...newMessages,
-        { role: "assistant", content: "⚠️ System offline or failed to reach the Cognito backend endpoint." },
+        { role: "assistant", content: "⚠️ System offline or failed to reach the Pragya backend endpoint." },
       ]);
     } finally {
       setLoading(false);
@@ -511,8 +511,6 @@ export default function Home() {
               theme === "dark" ? "text-cyan-400/90" : "text-indigo-600"
             }`}>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-semibold">BACKEND ONLINE</span>
-              <span className={theme === "dark" ? "text-slate-500" : "text-slate-400"}>•</span>
               <span className={theme === "dark" ? "text-slate-400" : "text-slate-600"}>v2.4 Voice Mesh</span>
             </div>
           </div>
@@ -771,7 +769,7 @@ export default function Home() {
                   <span className={`text-xs font-mono animate-pulse ${
                     theme === "dark" ? "text-cyan-400" : "text-indigo-600"
                   }`}>
-                    Querying Cognito neural backend & streaming response...
+                    Querying Pragya neural backend & streaming response...
                   </span>
                 </div>
               </div>
