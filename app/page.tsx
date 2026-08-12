@@ -7,9 +7,9 @@ type Message = { role: "user" | "assistant"; content: string };
 
 type LanguageOption = {
   code: string; // BCP-47 tag for Speech API
+  countryCode: string; // ISO 3166-1 alpha-2 tag for FlagCDN
   name: string;
   nativeName: string;
-  flag: string;
   placeholder: string;
   listeningText: string;
   subtext: string;
@@ -18,225 +18,225 @@ type LanguageOption = {
 const LANGUAGES: LanguageOption[] = [
   {
     code: "en-US",
+    countryCode: "us",
     name: "English",
     nativeName: "English",
-    flag: "🇺🇸",
     placeholder: "Ask Cognito anything...",
     listeningText: "Listening to your voice...",
     subtext: "Type or tap the microphone inside the search bar to speak directly to Cognito AI.",
   },
   {
     code: "bn-IN",
+    countryCode: "in",
     name: "Bengali",
     nativeName: "বাংলা",
-    flag: "🇮🇳",
     placeholder: "কগনিটোকে যেকোনো কিছু জিজ্ঞাসা করুন...",
     listeningText: "আপনার কথা শুনছি... এখন বলুন!",
     subtext: "কগনিটোর সাথে কথা বলতে টাইপ করুন অথবা সার্চ বারের মাইক্রোফোনে আলতো চাপুন।",
   },
   {
     code: "hi-IN",
+    countryCode: "in",
     name: "Hindi",
     nativeName: "हिन्दी",
-    flag: "🇮🇳",
     placeholder: "कॉग्निटो से कुछ भी पूछें...",
     listeningText: "आपकी आवाज़ सुन रहे हैं... अब बोलें!",
     subtext: "कॉग्निटो एआई से बात करने के लिए टाइप करें या सर्च बार में माइक्रोफ़ोन पर टैप करें।",
   },
   {
     code: "es-ES",
+    countryCode: "es",
     name: "Spanish",
     nativeName: "Español",
-    flag: "🇪🇸",
     placeholder: "Pregúntale a Cognito lo que sea...",
     listeningText: "Escuchando tu voz... ¡Habla ahora!",
     subtext: "Escribe o toca el micrófono en la barra de búsqueda para hablar con Cognito AI.",
   },
   {
     code: "fr-FR",
+    countryCode: "fr",
     name: "French",
     nativeName: "Français",
-    flag: "🇫🇷",
     placeholder: "Demandez n'importe quoi à Cognito...",
     listeningText: "À l'écoute de votre voix... Parlez maintenant!",
     subtext: "Tapez ou appuyez sur le microphone dans la barre de recherche pour parler à Cognito AI.",
   },
   {
     code: "de-DE",
+    countryCode: "de",
     name: "German",
     nativeName: "Deutsch",
-    flag: "🇩🇪",
     placeholder: "Fragen Sie Cognito etwas...",
     listeningText: "Höre deiner Stimme zu... Sprich jetzt!",
     subtext: "Geben Sie Ihren Text ein oder tippen Sie auf das Mikrofon, um mit Cognito AI zu sprechen.",
   },
   {
     code: "ja-JP",
+    countryCode: "jp",
     name: "Japanese",
     nativeName: "日本語",
-    flag: "🇯🇵",
     placeholder: "Cognitoに何でも質問してください...",
     listeningText: "音声を聞き取っています... 今すぐ話し始めてください！",
     subtext: "Cognito AIと会話するには、メッセージを入力するかマイクをタップしてください。",
   },
   {
     code: "zh-CN",
+    countryCode: "cn",
     name: "Chinese",
     nativeName: "中文",
-    flag: "🇨🇳",
     placeholder: "向 Cognito 提问任何问题...",
     listeningText: "正在聆听您的声音... 请说话！",
     subtext: "输入文字或点击搜索栏中的麦克风直接与 Cognito AI 交谈。",
   },
   {
     code: "ar-SA",
+    countryCode: "sa",
     name: "Arabic",
     nativeName: "العربية",
-    flag: "🇸🇦",
     placeholder: "اسأل كوغنيتو أي شيء...",
     listeningText: "جاري الاستماع إلى صوتك... تحدث الآن!",
     subtext: "اكتب أو انقر على الميكروفون في شريط البحث للتحدث مباشرة إلى Cognito AI.",
   },
   {
     code: "ru-RU",
+    countryCode: "ru",
     name: "Russian",
     nativeName: "Русский",
-    flag: "🇷🇺",
     placeholder: "Спросите Cognito о чем угодно...",
     listeningText: "Слушаю ваш голос... Говорите!",
     subtext: "Введите текст или нажмите на микрофон в строке поиска, чтобы поговорить с Cognito AI.",
   },
   {
     code: "pt-BR",
+    countryCode: "br",
     name: "Portuguese",
     nativeName: "Português",
-    flag: "🇧🇷",
     placeholder: "Pergunte qualquer coisa ao Cognito...",
     listeningText: "Ouvindo sua voz... Fale agora!",
     subtext: "Digite ou toque no microfone na barra de pesquisa para falar com Cognito AI.",
   },
   {
     code: "it-IT",
+    countryCode: "it",
     name: "Italian",
     nativeName: "Italiano",
-    flag: "🇮🇹",
     placeholder: "Chiedi qualsiasi cosa a Cognito...",
     listeningText: "Ascoltando la tua voce... Parla ora!",
     subtext: "Scrivi o tocca il microfono nella barra di ricerca per parlare con Cognito AI.",
   },
   {
     code: "ko-KR",
+    countryCode: "kr",
     name: "Korean",
     nativeName: "한국어",
-    flag: "🇰🇷",
     placeholder: "Cognito에게 무엇이든 물어보세요...",
     listeningText: "음성을 듣고 있습니다... 지금 말씀하세요!",
     subtext: "Cognito AI와 대화하려면 메시지를 입력하거나 마이크를 탭하세요.",
   },
   {
     code: "tr-TR",
+    countryCode: "tr",
     name: "Turkish",
     nativeName: "Türkçe",
-    flag: "🇹🇷",
     placeholder: "Cognito'ya her şeyi sorun...",
     listeningText: "Sesiniz dinleniyor... Şimdi konuşun!",
     subtext: "Cognito AI ile konuşmak için yazın veya arama çubuğundaki mikrofona dokunun.",
   },
   {
     code: "ta-IN",
+    countryCode: "in",
     name: "Tamil",
     nativeName: "தமிழ்",
-    flag: "🇮🇳",
     placeholder: "கோக்னிட்டோவிடம் எதுவாக இருந்தாலும் கேளுங்கள்...",
     listeningText: "உங்கள் குரலைக் கேட்கிறது... இப்போது பேசுங்கள்!",
     subtext: "கோக்னிட்டோ AI உடன் பேச தட்டச்சு செய்யவும் அல்லது மைக்ரோஃபோனைத் தொடவும்.",
   },
   {
     code: "te-IN",
+    countryCode: "in",
     name: "Telugu",
     nativeName: "తెలుగు",
-    flag: "🇮🇳",
     placeholder: "కోగ్నిటోను ఏదైనా అడగండి...",
     listeningText: "మీ వాయిస్ వింటోంది... ఇప్పుడు మాట్లాడండి!",
     subtext: "కోగ్నిటో AIతో మాట్లాడటానికి టైప్ చేయండి లేదా మైక్రోఫోన్‌ను నొక్కండి.",
   },
   {
     code: "mr-IN",
+    countryCode: "in",
     name: "Marathi",
     nativeName: "मराठी",
-    flag: "🇮🇳",
     placeholder: "कॉग्निटोला काहीही विचारा...",
     listeningText: "तुमचा आवाज ऐकत आहे... आता बोला!",
     subtext: "कॉग्निटो AI शी बोलण्यासाठी टाईप करा किंवा मायक्रोफोनवर टॅप करा.",
   },
   {
     code: "gu-IN",
+    countryCode: "in",
     name: "Gujarati",
     nativeName: "ગુજરાતી",
-    flag: "🇮🇳",
     placeholder: "કોગ્નિટોને કંઈપણ પૂછો...",
     listeningText: "તમારો અવાજ સાંભળી રહ્યા છીએ... હવે બોલો!",
     subtext: "કોગ્નિટો AI સાથે વાત કરવા માટે ટાઇપ કરો અથવા માઇક્રોફોન પર ટેપ કરો.",
   },
   {
     code: "kn-IN",
+    countryCode: "in",
     name: "Kannada",
     nativeName: "ಕನ್ನಡ",
-    flag: "🇮🇳",
     placeholder: "ಕಾಗ್ನಿಟೋಗೆ ಏನನ್ನಾದರೂ ಕೇಳಿ...",
     listeningText: "ನಿಮ್ಮ ಧ್ವನಿಯನ್ನು ಕೇಳಲಾಗುತ್ತಿದೆ... ಈಗ ಮಾತನಾಡಿ!",
     subtext: "ಕಾಗ್ನಿಟೋ AI ನೊಂದಿಗೆ ಮಾತನಾಡಲು ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮೈಕ್ರೊಫೋನ್ ಅನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ.",
   },
   {
     code: "ml-IN",
+    countryCode: "in",
     name: "Malayalam",
     nativeName: "മലയാളം",
-    flag: "🇮🇳",
     placeholder: "കോഗ്നിറ്റോയോട് എന്ത് വേണമെങ്കിലും ചോദിക്കൂ...",
     listeningText: "നിങ്ങളുടെ ശബ്ദം കേൾക്കുന്നു... ഇപ്പോൾ സംസാരിക്കൂ!",
-    subtext: "കോഗ്നിറ്റോ AI-യുമായി സംസാരിക്കാൻ ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ മൈക്രോഫോണിൽ ടാപ്പ് ചെയ്യുക.",
+    subtext: "കോഗ്നിറ്റോ AI-യുമായി സംസാരിക്കാൻ ടാപ്പ് ചെയ്യുക.",
   },
   {
     code: "id-ID",
+    countryCode: "id",
     name: "Indonesian",
     nativeName: "Bahasa Indonesia",
-    flag: "🇮🇩",
     placeholder: "Tanyakan apa saja kepada Cognito...",
     listeningText: "Mendengarkan suara Anda... Bicara sekarang!",
     subtext: "Ketik atau ketuk mikrofon di bilah pencarian untuk berbicara dengan Cognito AI.",
   },
   {
     code: "vi-VN",
+    countryCode: "vn",
     name: "Vietnamese",
     nativeName: "Tiếng Việt",
-    flag: "🇻🇳",
     placeholder: "Hỏi Cognito bất cứ điều gì...",
     listeningText: "Đang lắng nghe giọng nói của bạn... Hãy nói ngay!",
     subtext: "Nhập hoặc chạm vào micro trong thanh tìm kiếm để trò chuyện với Cognito AI.",
   },
   {
     code: "nl-NL",
+    countryCode: "nl",
     name: "Dutch",
     nativeName: "Nederlands",
-    flag: "🇳🇱",
     placeholder: "Vraag Cognito van alles...",
     listeningText: "Luisteren naar je stem... Spreek nu!",
     subtext: "Typ of tik op de microfoon in de zoekbalk om met Cognito AI te spreken.",
   },
   {
     code: "pl-PL",
+    countryCode: "pl",
     name: "Polish",
     nativeName: "Polski",
-    flag: "🇵🇱",
     placeholder: "Zapytaj Cognito o cokolwiek...",
     listeningText: "Słucham Twojego głosu... Mów teraz!",
     subtext: "Wpisz lub dotknij mikrofonu w pasku wyszukiwania, aby porozmawiać z Cognito AI.",
   },
   {
     code: "th-TH",
+    countryCode: "th",
     name: "Thai",
     nativeName: "ไทย",
-    flag: "🇹🇭",
     placeholder: "ถามอะไรก็ได้กับ Cognito...",
     listeningText: "กำลังฟังเสียงของคุณ... พูดได้เลย!",
     subtext: "พิมพ์หรือแตะไมโครโฟนในแถบค้นหาเพื่อพูดคุยกับ Cognito AI",
@@ -246,6 +246,9 @@ const LANGUAGES: LanguageOption[] = [
 export default function Home() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [selectedLangCode, setSelectedLangCode] = useState<string>("en-US");
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState<boolean>(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -268,6 +271,22 @@ export default function Home() {
     }
   }, [theme]);
 
+  // Close custom dropdown menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        langMenuRef.current &&
+        !langMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsLangMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
@@ -284,7 +303,6 @@ export default function Home() {
       if (SpeechRecognition) {
         setSpeechSupported(true);
 
-        // Stop existing recognition instance if running
         if (recognitionRef.current) {
           try {
             recognitionRef.current.abort();
@@ -358,7 +376,6 @@ export default function Home() {
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = selectedLangCode;
 
-    // Try to pick a native voice for the selected language
     const voices = window.speechSynthesis.getVoices();
     const langPrefix = selectedLangCode.split("-")[0];
     const matchingVoice =
@@ -502,33 +519,85 @@ export default function Home() {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-2.5">
-          {/* Language Selector Dropdown */}
-          <div className="relative flex items-center">
-            <select
-              value={selectedLangCode}
-              onChange={(e) => setSelectedLangCode(e.target.value)}
-              aria-label="Select Language"
-              className={`appearance-none cursor-pointer pl-3 pr-7 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${
+          {/* CUSTOM FUTURISTIC LANGUAGE SELECTOR WITH REAL NATIONAL FLAG IMAGES */}
+          <div className="relative" ref={langMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsLangMenuOpen((prev) => !prev)}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${
                 theme === "dark"
-                  ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan focus:ring-1 focus:ring-cyan-400"
-                  : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm focus:ring-1 focus:ring-indigo-500"
+                  ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
+                  : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm"
               }`}
+              title="Select Language"
             >
-              {LANGUAGES.map((lang) => (
-                <option
-                  key={lang.code}
-                  value={lang.code}
-                  className={theme === "dark" ? "bg-slate-900 text-slate-100" : "bg-white text-slate-900"}
-                >
-                  {lang.flag} {lang.nativeName} ({lang.name})
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-2 flex items-center text-current opacity-70">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {/* Crisp Flag Image */}
+              <img
+                src={`https://flagcdn.com/w40/${currentLang.countryCode}.png`}
+                alt={currentLang.name}
+                className="w-5 h-3.5 object-cover rounded-sm border border-slate-500/40 shadow-sm"
+              />
+              <span>{currentLang.nativeName}</span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${isLangMenuOpen ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-            </div>
+            </button>
+
+            {/* Custom Animated Dropdown Menu */}
+            {isLangMenuOpen && (
+              <div
+                className={`absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl p-1.5 shadow-2xl z-50 backdrop-blur-xl border scrollbar-thin ${
+                  theme === "dark"
+                    ? "bg-slate-900/95 border-cyan-500/40 text-slate-100 shadow-cyan-950/80"
+                    : "bg-white/95 border-slate-300 text-slate-900 shadow-slate-300/80"
+                }`}
+              >
+                {LANGUAGES.map((lang) => {
+                  const isSelected = lang.code === selectedLangCode;
+                  return (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLangCode(lang.code);
+                        setIsLangMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                        isSelected
+                          ? theme === "dark"
+                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                            : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                          : theme === "dark"
+                          ? "hover:bg-slate-800/80 text-slate-200"
+                          : "hover:bg-slate-100 text-slate-800"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <img
+                          src={`https://flagcdn.com/w40/${lang.countryCode}.png`}
+                          alt={lang.name}
+                          className="w-5 h-3.5 object-cover rounded-sm border border-slate-500/40 shadow-sm"
+                        />
+                        <div className="flex flex-col text-left">
+                          <span className="leading-tight">{lang.nativeName}</span>
+                          <span className="text-[10px] opacity-65 font-normal">{lang.name}</span>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* ChatGPT Style New Chat Button */}
@@ -785,12 +854,19 @@ export default function Home() {
             </button>
           </div>
         </form>
-        <div className={`mt-2 text-center text-[11px] font-mono flex items-center justify-center space-x-1.5 ${
+        <div className={`mt-2 text-center text-[11px] font-mono flex items-center justify-center space-x-2 ${
           theme === "dark" ? "text-slate-400" : "text-slate-600 font-medium"
         }`}>
           <span>Cognito Voice Assistant</span>
           <span>•</span>
-          <span>{currentLang.flag} {currentLang.nativeName} ({currentLang.code})</span>
+          <div className="inline-flex items-center space-x-1">
+            <img
+              src={`https://flagcdn.com/w40/${currentLang.countryCode}.png`}
+              alt={currentLang.name}
+              className="w-4 h-3 object-cover rounded-sm border border-slate-500/40 inline-block"
+            />
+            <span>{currentLang.nativeName} ({currentLang.code})</span>
+          </div>
           <span>•</span>
           <span>Web Speech Engine Active</span>
         </div>
