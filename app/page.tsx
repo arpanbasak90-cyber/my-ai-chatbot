@@ -549,19 +549,13 @@ export default function Home() {
             </span>
           </div>
           <div>
-            <h1 className={`text-xl font-black tracking-tight pb-0.5 inline-block leading-normal bg-clip-text text-transparent ${
+            <h1 className={`text-xl font-black tracking-tight leading-none bg-clip-text text-transparent ${
               theme === "dark"
                 ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
                 : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
             }`}>
               Pragya AI
             </h1>
-            <div className={`flex items-center space-x-2 text-[11px] font-mono ${
-              theme === "dark" ? "text-cyan-400/90" : "text-indigo-600"
-            }`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className={theme === "dark" ? "text-slate-400" : "text-slate-600"}>v2.4 Voice Mesh</span>
-            </div>
           </div>
         </div>
 
