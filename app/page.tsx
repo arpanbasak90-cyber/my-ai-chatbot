@@ -268,6 +268,30 @@ export default function Home() {
   const [attachedFile, setAttachedFile] = useState<{ fileName: string; text: string } | null>(null);
   const [parsingFile, setParsingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fetchingHistory, setFetchingHistory] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  const fetchChatHistory = async () => {
+    setFetchingHistory(true);
+    try {
+      const res = await fetch("/api/chat");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.messages && Array.isArray(data.messages)) {
+          setMessages(
+            data.messages.map((m: any) => ({
+              role: m.role,
+              content: m.content,
+            }))
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load chat history from MongoDB:", err);
+    } finally {
+      setFetchingHistory(false);
+    }
+  };
 
   const currentLang =
     LANGUAGES.find((l) => l.code === selectedLangCode) || LANGUAGES[0];
