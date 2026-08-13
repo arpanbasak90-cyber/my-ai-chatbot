@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI as string;
-
-if (!MONGO_URI) {
-    throw new Error("Please define the MONGO_URI environment variable in .env.local");
-}
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "";
 
 let cached = (global as any).mongoose;
 
@@ -13,6 +9,10 @@ if (!cached) {
 }
 
 async function connectDB() {
+    if (!MONGO_URI) {
+        console.warn("⚠️ MONGO_URI / MONGODB_URI is not set in Environment Variables.");
+        return null;
+    }
     if (cached.conn) {
         return cached.conn;
     }
