@@ -553,6 +553,20 @@ export default function Home() {
         : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
         }`}>
         <div className="flex items-center space-x-3.5">
+          {/* History Sidebar Toggle Icon Button (ChatGPT Style) */}
+          <button
+            onClick={() => setIsHistoryOpen((prev) => !prev)}
+            className={`p-2 rounded-xl border transition-all duration-200 ${theme === "dark"
+                ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 hover:bg-slate-800 shadow-md glow-cyan"
+                : "bg-white border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm"
+              }`}
+            title="Toggle Chat History (MongoDB)"
+          >
+            <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+
           {/* Flower Logo */}
           <div className="relative w-10 h-10 rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan">
             <Image
