@@ -770,14 +770,14 @@ export default function Home() {
             onClick={() => setIsHistoryOpen(true)}
             className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${theme === "dark"
                 ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
-                : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm"
+                : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
               }`}
             title="View MongoDB Chat History"
           >
-            <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-cyan-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">History</span>
+            <span>History</span>
           </button>
 
           {/* Theme Toggle Button */}
