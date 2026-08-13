@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-
+import connectDB from "../../../lib/mongodb";
+import Chat from "../../../models/chat";
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -38,11 +39,32 @@ export async function POST(req: NextRequest) {
     const result = await chat.sendMessage(lastMessage);
     const reply = result.response.text();
 
+    // Save both the user's message and the AI's reply to MongoDB
+    try {
+      await connectDB();
+      await Chat.create({ role: "user", content: lastMessage });
+      await Chat.create({ role: "assistant", content: reply });
+    } catch (dbError) {
+      console.error("MongoDB save error:", dbError);
+      // Don't fail the whole request if saving history fails
+    }
+
     return NextResponse.json({ reply });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     return NextResponse.json({
       reply: `⚠️ Error from AI model: ${error?.message || "Failed to generate response. Please check your API key."}`
     });
+  }
+}
+
+export async function GET() {
+  try {
+    await connectDB();
+    const chats = await Chat.find({}).sort({ createdAt: 1 }).limit(100);
+    return NextResponse.json({ messages: chats });
+  } catch (error: any) {
+    console.error("MongoDB load error:", error);
+    return NextResponse.json({ messages: [] });
   }
 }

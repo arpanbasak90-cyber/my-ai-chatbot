@@ -268,6 +268,35 @@ export default function Home() {
   const [attachedFile, setAttachedFile] = useState<{ fileName: string; text: string } | null>(null);
   const [parsingFile, setParsingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fetchingHistory, setFetchingHistory] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  const fetchChatHistory = async () => {
+    setFetchingHistory(true);
+    try {
+      const res = await fetch("/api/chat");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.messages && Array.isArray(data.messages)) {
+          setMessages(
+            data.messages.map((m: any) => ({
+              role: m.role,
+              content: m.content,
+            }))
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load chat history from MongoDB:", err);
+    } finally {
+      setFetchingHistory(false);
+    }
+  };
+
+  // Fetch past chat history from MongoDB on mount
+  useEffect(() => {
+    fetchChatHistory();
+  }, []);
 
   const currentLang =
     LANGUAGES.find((l) => l.code === selectedLangCode) || LANGUAGES[0];
@@ -405,10 +434,10 @@ export default function Home() {
     utterance.lang = selectedLangCode;
 
     const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-    
+
     // Find specifically selected voice or matching language voice
     let voiceToUse = voices.find((v) => v.voiceURI === selectedVoiceURI);
-    
+
     if (!voiceToUse) {
       const langPrefix = selectedLangCode.split("-")[0];
       voiceToUse =
@@ -483,7 +512,7 @@ export default function Home() {
     if (!query || loading) return;
 
     setInput("");
-    
+
     // Inject attached file content into user message context if present
     let userContent = query;
     if (attachedFile) {
@@ -524,16 +553,14 @@ export default function Home() {
   };
 
   return (
-    <div className={`relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 transition-colors duration-300 overflow-hidden ${
-      theme === "dark" ? "bg-[#0b0f17] text-slate-100" : "bg-white text-slate-900"
-    }`}>
+    <div className={`relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 transition-colors duration-300 overflow-hidden ${theme === "dark" ? "bg-[#0b0f17] text-slate-100" : "bg-white text-slate-900"
+      }`}>
 
       {/* Header Bar */}
-      <header className={`relative z-50 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${
-        theme === "dark"
+      <header className={`relative z-50 w-full max-w-4xl flex justify-between items-center py-3.5 px-4 sm:px-6 rounded-2xl transition-all duration-300 ${theme === "dark"
           ? "glass-panel shadow-2xl border border-slate-800/80"
           : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
-      }`}>
+        }`}>
         <div className="flex items-center space-x-3.5">
           {/* Flower Logo */}
           <div className="relative w-10 h-10 rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan">
@@ -551,11 +578,10 @@ export default function Home() {
             </span>
           </div>
           <div>
-            <h1 className={`text-xl font-black tracking-tight leading-normal pb-1 inline-block bg-clip-text text-transparent ${
-              theme === "dark"
+            <h1 className={`text-xl font-black tracking-tight leading-normal pb-1 inline-block bg-clip-text text-transparent ${theme === "dark"
                 ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
                 : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
-            }`}>
+              }`}>
               Pragya AI
             </h1>
           </div>
@@ -567,11 +593,10 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setIsVoiceMenuOpen((prev) => !prev)}
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${
-                theme === "dark"
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${theme === "dark"
                   ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
                   : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm"
-              }`}
+                }`}
               title="Select Voice Tone (Male / Female)"
             >
               <svg className="w-3.5 h-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -595,11 +620,10 @@ export default function Home() {
             {/* Custom Voice Tone Dropdown Menu */}
             {isVoiceMenuOpen && (
               <div
-                className={`absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl p-1.5 shadow-2xl z-50 backdrop-blur-xl border scrollbar-thin ${
-                  theme === "dark"
+                className={`absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl p-1.5 shadow-2xl z-50 backdrop-blur-xl border scrollbar-thin ${theme === "dark"
                     ? "bg-slate-900/95 border-cyan-500/40 text-slate-100 shadow-cyan-950/80"
                     : "bg-white/95 border-slate-300 text-slate-900 shadow-slate-300/80"
-                }`}
+                  }`}
               >
                 <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-700/40 mb-1">
                   Select AI Voice (Male / Female)
@@ -620,15 +644,14 @@ export default function Home() {
                           setSelectedVoiceURI(voice.voiceURI);
                           setIsVoiceMenuOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                          isSelected
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${isSelected
                             ? theme === "dark"
                               ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
                               : "bg-indigo-50 text-indigo-700 border border-indigo-200"
                             : theme === "dark"
-                            ? "hover:bg-slate-800/80 text-slate-200"
-                            : "hover:bg-slate-100 text-slate-800"
-                        }`}
+                              ? "hover:bg-slate-800/80 text-slate-200"
+                              : "hover:bg-slate-100 text-slate-800"
+                          }`}
                       >
                         <div className="flex items-center space-x-2 text-left truncate mr-2">
                           <span>{isFemale ? "👩" : isMale ? "👨" : "🗣️"}</span>
@@ -654,11 +677,10 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setIsLangMenuOpen((prev) => !prev)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${
-                theme === "dark"
+              className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 outline-none ${theme === "dark"
                   ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
                   : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm"
-              }`}
+                }`}
               title="Select Language"
             >
               {/* Crisp Flag Image */}
@@ -681,11 +703,10 @@ export default function Home() {
             {/* Custom Animated Dropdown Menu */}
             {isLangMenuOpen && (
               <div
-                className={`absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl p-1.5 shadow-2xl z-50 backdrop-blur-xl border scrollbar-thin ${
-                  theme === "dark"
+                className={`absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl p-1.5 shadow-2xl z-50 backdrop-blur-xl border scrollbar-thin ${theme === "dark"
                     ? "bg-slate-900/95 border-cyan-500/40 text-slate-100 shadow-cyan-950/80"
                     : "bg-white/95 border-slate-300 text-slate-900 shadow-slate-300/80"
-                }`}
+                  }`}
               >
                 {LANGUAGES.map((lang) => {
                   const isSelected = lang.code === selectedLangCode;
@@ -697,15 +718,14 @@ export default function Home() {
                         setSelectedLangCode(lang.code);
                         setIsLangMenuOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                        isSelected
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${isSelected
                           ? theme === "dark"
                             ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
                             : "bg-indigo-50 text-indigo-700 border border-indigo-200"
                           : theme === "dark"
-                          ? "hover:bg-slate-800/80 text-slate-200"
-                          : "hover:bg-slate-100 text-slate-800"
-                      }`}
+                            ? "hover:bg-slate-800/80 text-slate-200"
+                            : "hover:bg-slate-100 text-slate-800"
+                        }`}
                     >
                       <div className="flex items-center space-x-2.5">
                         <img
@@ -733,11 +753,10 @@ export default function Home() {
           {/* ChatGPT Style New Chat Button */}
           <button
             onClick={handleNewChat}
-            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
-              theme === "dark"
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${theme === "dark"
                 ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 hover:border-cyan-400 shadow-md glow-cyan"
                 : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
-            }`}
+              }`}
             title="Start a new chat session"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -746,14 +765,28 @@ export default function Home() {
             <span className="hidden sm:inline">New Chat</span>
           </button>
 
+          {/* Chat History Drawer Toggle Button */}
+          <button
+            onClick={() => setIsHistoryOpen(true)}
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${theme === "dark"
+                ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
+                : "bg-white border-slate-300 text-slate-800 hover:bg-slate-50 shadow-sm"
+              }`}
+            title="View MongoDB Chat History"
+          >
+            <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="hidden sm:inline">History</span>
+          </button>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${
-              theme === "dark"
+            className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${theme === "dark"
                 ? "bg-slate-900/80 border-slate-700/80 text-amber-300 hover:border-cyan-500/50 hover:bg-slate-800 shadow-md glow-cyan"
                 : "bg-white border-slate-300 text-slate-800 hover:bg-slate-100 shadow-sm"
-            }`}
+              }`}
             title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
           >
             {theme === "dark" ? (
@@ -781,16 +814,14 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center text-center space-y-6 my-auto px-4 py-6">
             {/* Big Flower Logo Hero Icon */}
             <div className="relative group">
-              <div className={`absolute -inset-3 rounded-full transition duration-500 animate-pulse-slow ${
-                theme === "dark"
+              <div className={`absolute -inset-3 rounded-full transition duration-500 animate-pulse-slow ${theme === "dark"
                   ? "bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 opacity-50 blur-2xl group-hover:opacity-85"
                   : "bg-gradient-to-r from-blue-300 via-indigo-200 to-cyan-300 opacity-60 blur-xl group-hover:opacity-80"
-              }`} />
-              <div className={`relative w-36 h-36 sm:w-44 sm:h-44 rounded-full border-2 p-3 flex items-center justify-center shadow-2xl backdrop-blur-xl transition-all duration-300 ${
-                theme === "dark"
+                }`} />
+              <div className={`relative w-36 h-36 sm:w-44 sm:h-44 rounded-full border-2 p-3 flex items-center justify-center shadow-2xl backdrop-blur-xl transition-all duration-300 ${theme === "dark"
                   ? "border-cyan-400/50 bg-slate-950/90"
                   : "border-indigo-300/80 bg-white shadow-indigo-100"
-              }`}>
+                }`}>
                 <Image
                   src="/flower_logo.png"
                   alt="Pragya AI Flower Mascot"
@@ -803,11 +834,10 @@ export default function Home() {
             </div>
 
             <div className="max-w-xl space-y-3">
-              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight pb-2 inline-block leading-normal bg-clip-text text-transparent ${
-                theme === "dark"
+              <h2 className={`text-4xl sm:text-6xl font-black tracking-tight pb-2 inline-block leading-normal bg-clip-text text-transparent ${theme === "dark"
                   ? "bg-gradient-to-r from-white via-slate-100 to-cyan-300"
                   : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-700"
-              }`}>
+                }`}>
                 Pragya AI
               </h2>
             </div>
@@ -817,13 +847,12 @@ export default function Home() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex flex-col p-5 rounded-2xl transition-all duration-300 ${
-                  m.role === "user"
+                className={`flex flex-col p-5 rounded-2xl transition-all duration-300 ${m.role === "user"
                     ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 text-white ml-auto max-w-[85%] shadow-xl glow-blue rounded-br-none"
                     : theme === "dark"
-                    ? "bg-slate-900/90 border border-cyan-500/30 text-slate-100 mr-auto max-w-[90%] glass-panel shadow-2xl rounded-bl-none backdrop-blur-xl"
-                    : "bg-white border border-slate-200/90 text-slate-900 mr-auto max-w-[90%] shadow-md rounded-bl-none"
-                }`}
+                      ? "bg-slate-900/90 border border-cyan-500/30 text-slate-100 mr-auto max-w-[90%] glass-panel shadow-2xl rounded-bl-none backdrop-blur-xl"
+                      : "bg-white border border-slate-200/90 text-slate-900 mr-auto max-w-[90%] shadow-md rounded-bl-none"
+                  }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
@@ -842,9 +871,8 @@ export default function Home() {
                         />
                       </div>
                     )}
-                    <span className={`text-xs font-semibold tracking-wide uppercase font-mono ${
-                      m.role === "user" ? "opacity-80" : theme === "dark" ? "text-slate-300" : "text-slate-700"
-                    }`}>
+                    <span className={`text-xs font-semibold tracking-wide uppercase font-mono ${m.role === "user" ? "opacity-80" : theme === "dark" ? "text-slate-300" : "text-slate-700"
+                      }`}>
                       {m.role === "user" ? "User Query" : "Pragya Response"}
                     </span>
                   </div>
@@ -853,24 +881,22 @@ export default function Home() {
                       <>
                         <button
                           onClick={() => speakText(m.content)}
-                          className={`p-1 rounded-md transition-colors ${
-                            isSpeaking
+                          className={`p-1 rounded-md transition-colors ${isSpeaking
                               ? "bg-amber-500/20 text-amber-400 animate-pulse"
                               : theme === "dark"
-                              ? "hover:bg-slate-800 text-cyan-400"
-                              : "hover:bg-slate-100 text-indigo-600"
-                          }`}
+                                ? "hover:bg-slate-800 text-cyan-400"
+                                : "hover:bg-slate-100 text-indigo-600"
+                            }`}
                           title={`Read aloud in ${currentLang.nativeName}`}
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                           </svg>
                         </button>
-                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
-                          theme === "dark"
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${theme === "dark"
                             ? "text-cyan-400/90 bg-cyan-950/80 border-cyan-500/40"
                             : "text-indigo-700 bg-indigo-50 border-indigo-200"
-                        }`}>
+                          }`}>
                           Pragya Neural Stream
                         </span>
                       </>
@@ -885,17 +911,15 @@ export default function Home() {
 
             {loading && (
               <div
-                className={`p-5 rounded-2xl mr-auto max-w-[90%] border backdrop-blur-xl ${
-                  theme === "dark"
+                className={`p-5 rounded-2xl mr-auto max-w-[90%] border backdrop-blur-xl ${theme === "dark"
                     ? "bg-slate-900/80 border-cyan-500/40 text-slate-300"
                     : "bg-white border-slate-300 text-slate-700 shadow-sm"
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-5 h-5 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
-                  <span className={`text-xs font-mono animate-pulse ${
-                    theme === "dark" ? "text-cyan-400" : "text-indigo-600"
-                  }`}>
+                  <span className={`text-xs font-mono animate-pulse ${theme === "dark" ? "text-cyan-400" : "text-indigo-600"
+                    }`}>
                     Querying Pragya neural backend & streaming response...
                   </span>
                 </div>
@@ -968,11 +992,10 @@ export default function Home() {
               onChange={(e) => setInput(e.target.value)}
               placeholder={attachedFile ? `Ask Pragya about "${attachedFile.fileName}"...` : isListening ? currentLang.listeningText : currentLang.placeholder}
               disabled={loading || parsingFile}
-              className={`relative w-full py-4 pl-12 pr-28 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${
-                theme === "dark"
+              className={`relative w-full py-4 pl-12 pr-28 rounded-full text-sm font-normal transition-all duration-300 outline-none backdrop-blur-xl ${theme === "dark"
                   ? "bg-slate-900/90 border border-slate-700/80 text-slate-100 placeholder-slate-400 focus:border-cyan-400 focus:bg-slate-900 shadow-2xl"
                   : "bg-white border border-slate-300/90 text-slate-900 placeholder-slate-500 focus:border-indigo-600 shadow-xl"
-              }`}
+                }`}
             />
 
             {/* Document Upload Clip Button on Left */}
@@ -980,13 +1003,12 @@ export default function Home() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading || parsingFile}
-              className={`absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-200 ${
-                attachedFile
+              className={`absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-200 ${attachedFile
                   ? "text-cyan-400 bg-cyan-500/20 border border-cyan-400/50"
                   : theme === "dark"
-                  ? "text-slate-400 hover:text-cyan-300 hover:bg-slate-800"
-                  : "text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
-              }`}
+                    ? "text-slate-400 hover:text-cyan-300 hover:bg-slate-800"
+                    : "text-slate-500 hover:text-indigo-600 hover:bg-slate-100"
+                }`}
               title="Attach Document (PDF, DOCX, PPTX, TXT)"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -999,13 +1021,12 @@ export default function Home() {
               type="button"
               onClick={toggleListening}
               disabled={loading}
-              className={`absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full p-1 border transition-all duration-300 flex items-center justify-center ${
-                isListening
+              className={`absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full p-1 border transition-all duration-300 flex items-center justify-center ${isListening
                   ? "bg-red-500/20 border-red-500 animate-pulse shadow-lg shadow-red-500/50 scale-110"
                   : theme === "dark"
-                  ? "bg-slate-900/90 border-cyan-500/40 hover:border-cyan-400 hover:scale-105 shadow-md shadow-cyan-950"
-                  : "bg-slate-100 border-indigo-300 hover:border-indigo-500 hover:scale-105 shadow-sm"
-              }`}
+                    ? "bg-slate-900/90 border-cyan-500/40 hover:border-cyan-400 hover:scale-105 shadow-md shadow-cyan-950"
+                    : "bg-slate-100 border-indigo-300 hover:border-indigo-500 hover:scale-105 shadow-sm"
+                }`}
               title={isListening ? "Stop Listening" : `Voice Assistant (${currentLang.name})`}
             >
               <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
@@ -1014,9 +1035,8 @@ export default function Home() {
                   alt="Futuristic Voice Assistant Microphone"
                   width={28}
                   height={28}
-                  className={`object-contain transition-all duration-300 ${
-                    isListening ? "brightness-125 saturate-150 animate-bounce" : "hover:brightness-125"
-                  }`}
+                  className={`object-contain transition-all duration-300 ${isListening ? "brightness-125 saturate-150 animate-bounce" : "hover:brightness-125"
+                    }`}
                 />
               </div>
             </button>
@@ -1035,6 +1055,105 @@ export default function Home() {
           </div>
         </form>
       </footer>
+
+      {/* Futuristic Chat History Slide-over Drawer */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-opacity">
+          <div
+            className={`w-full max-w-md h-full flex flex-col shadow-2xl border-l p-5 overflow-hidden transition-all transform duration-300 ${theme === "dark"
+                ? "bg-[#0f172a]/95 border-slate-700/80 text-slate-100"
+                : "bg-white border-slate-200 text-slate-900"
+              }`}
+          >
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-700/40">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-bold text-base tracking-tight">Saved Chat History</h3>
+                  <p className="text-xs text-slate-400 font-mono">Stored in MongoDB Atlas</p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={fetchChatHistory}
+                  disabled={fetchingHistory}
+                  className={`p-2 rounded-xl text-xs font-semibold border transition-all ${theme === "dark"
+                      ? "bg-slate-800 hover:bg-slate-700 border-slate-700 text-cyan-300"
+                      : "bg-slate-100 hover:bg-slate-200 border-slate-300 text-indigo-600"
+                    }`}
+                  title="Reload history from MongoDB"
+                >
+                  <svg className={`w-4 h-4 ${fetchingHistory ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryOpen(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  title="Close History Panel"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* History Messages List */}
+            <div className="flex-1 overflow-y-auto py-4 space-y-3.5 scrollbar-thin">
+              {fetchingHistory ? (
+                <div className="flex items-center justify-center py-12 text-slate-400 space-x-2">
+                  <div className="w-4 h-4 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
+                  <span className="text-xs font-mono">Loading from MongoDB...</span>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-sm">
+                  <p>No chat history found in database.</p>
+                  <p className="text-xs mt-1 opacity-70">Start sending messages to build history!</p>
+                </div>
+              ) : (
+                messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-3.5 rounded-xl border text-xs leading-relaxed transition-all ${msg.role === "user"
+                        ? theme === "dark"
+                          ? "bg-slate-800/80 border-slate-700/60 text-slate-100"
+                          : "bg-indigo-50/80 border-indigo-100 text-slate-900"
+                        : theme === "dark"
+                          ? "bg-cyan-950/40 border-cyan-500/30 text-cyan-100"
+                          : "bg-white border-slate-200 text-slate-900 shadow-sm"
+                      }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5 font-mono text-[10px] uppercase font-semibold">
+                      <span className={msg.role === "user" ? "text-cyan-400" : "text-indigo-400"}>
+                        {msg.role === "user" ? "👤 User" : "🤖 Pragya AI"}
+                      </span>
+                    </div>
+                    <p className="line-clamp-4 whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="pt-3 border-t border-slate-700/40 text-center">
+              <button
+                type="button"
+                onClick={() => setIsHistoryOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white text-xs font-semibold hover:from-indigo-500 hover:to-cyan-500 transition shadow-md glow-cyan"
+              >
+                Close Drawer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
