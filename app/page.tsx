@@ -556,15 +556,16 @@ export default function Home() {
           {/* History Sidebar Toggle Icon Button (ChatGPT Style) */}
           <button
             onClick={() => setIsHistoryOpen((prev) => !prev)}
-            className={`p-2 rounded-xl border transition-all duration-200 ${theme === "dark"
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl border transition-all duration-200 ${theme === "dark"
                 ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 hover:bg-slate-800 shadow-md glow-cyan"
-                : "bg-white border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm"
+                : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
               }`}
             title="Toggle Chat History (MongoDB)"
           >
-            <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-cyan-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
+            <span className="text-xs font-semibold">History</span>
           </button>
 
           {/* Flower Logo */}
