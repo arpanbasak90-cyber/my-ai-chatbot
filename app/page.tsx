@@ -553,21 +553,6 @@ export default function Home() {
         : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
         }`}>
         <div className="flex items-center space-x-3.5">
-          {/* History Sidebar Toggle Icon Button (ChatGPT Style) */}
-          <button
-            onClick={() => setIsHistoryOpen((prev) => !prev)}
-            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl border transition-all duration-200 ${theme === "dark"
-                ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 hover:bg-slate-800 shadow-md glow-cyan"
-                : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
-              }`}
-            title="Toggle Chat History (MongoDB)"
-          >
-            <svg className="w-4 h-4 text-cyan-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-xs font-semibold">History</span>
-          </button>
-
           {/* Flower Logo */}
           <div className="relative w-10 h-10 rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan">
             <Image
@@ -769,6 +754,21 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
             <span className="hidden sm:inline">New Chat</span>
+          </button>
+
+          {/* Chat History Drawer Toggle Button */}
+          <button
+            onClick={() => setIsHistoryOpen((prev) => !prev)}
+            className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-300 ${theme === "dark"
+                ? "bg-slate-900/90 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 shadow-md glow-cyan"
+                : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm"
+              }`}
+            title="Toggle Chat History (MongoDB)"
+          >
+            <svg className="w-4 h-4 text-cyan-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>History</span>
           </button>
 
           {/* Theme Toggle Button */}
