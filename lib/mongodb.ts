@@ -14,14 +14,14 @@ async function connectDB() {
     return null;
   }
 
-  if (cached.conn && cached.conn.connection && cached.conn.connection.readyState === 1) {
+  if (cached.conn) {
     return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: true,
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 15000,
     };
 
     cached.promise = mongoose.connect(MONGO_URI, opts).then((mongooseInstance) => {

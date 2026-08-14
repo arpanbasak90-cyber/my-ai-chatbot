@@ -277,7 +277,7 @@ export default function Home() {
     setFetchingHistory(true);
     setHistoryError(null);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
     try {
       const res = await fetch("/api/chat", { signal: controller.signal });
       const data = await res.json().catch(() => null);
@@ -296,7 +296,11 @@ export default function Home() {
       }
     } catch (err: any) {
       console.error("Failed to load chat history from MongoDB:", err);
-      setHistoryError(err?.message || "Failed to connect to MongoDB server");
+      if (err?.name === "AbortError") {
+        setHistoryError("Database connection timed out. Please click Refresh to try again.");
+      } else {
+        setHistoryError(err?.message || "Failed to connect to MongoDB server");
+      }
     } finally {
       clearTimeout(timeoutId);
       setFetchingHistory(false);
