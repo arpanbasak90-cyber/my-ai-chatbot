@@ -1,9 +1,9 @@
 <div align="center">
 
-# ⚡ Pragya AI (প্রজ্ঞা / प्रज्ञा) - Next-Gen Neural Voice & Document Assistant
+# ⚡ Pragya AI (প্রজ্ঞা / প্রज्ञा) - Next-Gen Neural Voice & Document Assistant
 
 <p align="center">
-  A visually stunning, glassmorphic AI Assistant & Search Engine created by <b>Arpan Basak</b>. Powered by <b>Next.js 16</b>, <b>React 19</b>, <b>Tailwind CSS v4</b>, <b>MongoDB Atlas</b>, and <b>Google Gemini 3.6 Flash AI</b>.
+  A visually stunning, glassmorphic AI Assistant & Search Engine created by <b>Arpan Basak</b>. Powered by <b>Next.js 16</b>, <b>React 19</b>, <b>Tailwind CSS v4</b>, <b>MongoDB Atlas</b>, and <b>Google Gemini AI</b>.
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
     <img src="https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB Atlas" />
   </a>
   <a href="https://ai.google.dev/">
-    <img src="https://img.shields.io/badge/AI%20Engine-Gemini%203.6%20Flash-8e44ad?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
+    <img src="https://img.shields.io/badge/AI%20Engine-Gemini%203.5%2F3.6-8e44ad?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
   </a>
 </p>
 
@@ -31,17 +31,9 @@
 
 ---
 
-## 📸 Frontend Showcase & User Interface
-
-<div align="center">
-  <img src="./public/pragya_ai_preview.jpg" alt="Pragya AI Interface Preview" width="100%" style="border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);" />
-</div>
-
----
-
 ## 👨‍💻 Creator & Inventor
 
-**Pragya AI** was created and engineered by **Arpan Basak**.
+**Pragya AI** was created, architected, and engineered by **Arpan Basak**, a Software Engineer and AI enthusiast from Kolkata, West Bengal, India.
 
 ---
 
@@ -51,30 +43,88 @@
 
 ---
 
-## ✨ Key Features & Highlights
+## 📸 Interface Showcase & Feature Walkthrough
 
-- 🧠 **Pragya AI Core Intelligence**: Custom persona created by **Arpan Basak**, responding intelligently across English, Bengali, Hindi, and 25+ global languages.
-- 🎙️ **Multilingual Voice Assistant (STT & TTS)**: Real-time Speech-to-Text voice listening and neural Text-to-Speech playback with customized voice tone selection (Male / Female).
-- 📄 **Smart Document Analysis**: Upload and analyze PDF, DOCX, PPTX, TXT, JSON, and CSV documents directly inside the query bar.
-- 💾 **MongoDB Atlas Chat History**: Persistent multi-turn chat history synced seamlessly with MongoDB Atlas database and instant local fallback.
-- 📱 **100% Mobile Responsive Layout**: Precision-crafted UI with viewport scaling (`dvh`), top navigation wrapping, and touch-optimized popovers for phones, tablets, and desktop displays.
-- 🎨 **Glassmorphic Aesthetic & Themes**: Ambient neon glow accents, backdrop blurs, dark mode, and high-contrast light mode with real national flag badges.
-- 🔒 **Secure API Architecture**: Server-side secret key isolation guarding Gemini API keys and MongoDB connection credentials.
+### 1. 🏠 Main Futuristic AI Landing Dashboard
+<div align="center">
+  <img src="./public/screenshots/home_dashboard.png" alt="Pragya AI Home Dashboard" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+</div>
+
+#### Key Features Displayed:
+- **Central Neon Lotus Portal**: Futuristic glowing branding element with dynamic ambient lighting effects.
+- **Top Navigation Controls**:
+  - 🎙️ **Voice Control Settings**: Switch between Male/Female neural voice synthesis modes.
+  - 🌐 **Language Selector**: Choose preferred language (English, Bengali, Hindi, Spanish, French, etc.) with real national flag badges.
+  - ➕ **+ New Chat**: Reset the active chat conversation state instantly.
+  - 🕒 **History Button**: Access saved chat logs directly from MongoDB Cloud Atlas.
+  - 🌙 **Dark/Light Mode Toggle**: Dynamic theme switching with glassmorphic backdrop filters.
+- **Universal Input Dock**: Attachment button supporting document uploads (PDF, DOCX, PPTX, TXT, JSON, CSV), microphone input icon for Speech-to-Text listening, and send action trigger.
+
+---
+
+### 2. 💬 Real-Time Streaming Chat & Neural Voice Interface
+<div align="center">
+  <img src="./public/screenshots/chat_interface.png" alt="Pragya AI Chat Stream Interface" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+</div>
+
+#### Key Features Displayed:
+- **Vibrant User Query Bubbles**: Sleek gradient cards distinguishing user queries from AI responses.
+- **Pragya Neural Stream**:
+  - Real-time token streaming powered by Google Gemini AI with automatic multi-model fallback.
+  - 🔊 **Voice Audio Playback**: Read-aloud button for listening to Pragya's response in natural text-to-speech.
+  - ⚡ **Stream Status Indicator**: Visual notification badge ("Pragya Neural Stream") displaying active response generation status.
+
+---
+
+### 3. 💾 Saved Chat History Modal (MongoDB Cloud Integration)
+<div align="center">
+  <img src="./public/screenshots/chat_history_modal.png" alt="Pragya AI Saved Chat History Modal" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+</div>
+
+#### Key Features Displayed:
+- **Cloud Database Synchronization**: Automatically fetches past chat logs stored securely in **MongoDB Atlas**.
+- **Interactive Session Management**:
+  - 🔄 **Refresh Button**: Fetch latest chat logs from backend API.
+  - 🗑️ **Delete History Button**: Clear all stored chat history with confirmation.
+  - 📥 **Load into Active Chat**: Restores past conversation messages straight into your main chat workspace for continuous multi-turn interaction.
+
+---
+
+## ✨ Detailed Application Features
+
+### 🧠 1. Custom Pragya AI Persona & Multilingual Support
+- Custom system prompt identifying **Arpan Basak** as creator.
+- Multi-language fluency supporting English, Bengali (বাংলা), Hindi (हिंदी), and 25+ global languages.
+
+### 🎙️ 2. Speech-to-Text & Text-to-Speech (STT / TTS)
+- Hands-free voice commands using Web Speech API.
+- Custom neural voice synthesis with configurable voice pitch and gender selection.
+
+### 📄 3. Intelligent Document & File Parsing Engine
+- Supports **PDF**, **DOCX**, **PPTX** (PowerPoint slides parser), **TXT**, **JSON**, and **CSV**.
+- Extracted text is seamlessly passed to Gemini AI for document QA, summarization, and content extraction.
+
+### 💾 4. MongoDB Atlas Persistence & History Management
+- Persistent chat sessions stored in MongoDB Atlas cloud database.
+- Serverless API endpoint `/api/chat` with GET, POST, and DELETE capabilities.
+
+### ⚡ 5. Resilient Multi-Model Fallback Chain
+- Automatic fallback hierarchy trying `gemini-3.5-flash` ➔ `gemini-3.5-flash-lite` ➔ `gemini-3.1-flash-lite` ➔ `gemini-flash-latest` ➔ `gemini-3.6-flash`.
+- Eliminates single-model 429 quota blockages and 404 endpoint failures automatically.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
 ### 🌐 Frontend Layer
-- **[Next.js 16 (App Router & Turbopack)](https://nextjs.org)**: Server-side rendering, fast refresh, and optimized static asset generation.
-- **[React 19](https://react.dev)**: Modern component state, streaming hooks, and asynchronous rendering.
-- **[TypeScript 5](https://www.typescriptlang.org)**: End-to-end type safety across UI components and API handlers.
-- **[Tailwind CSS v4](https://tailwindcss.com)**: Dynamic utility styling, custom glassmorphism panels (`glass-panel`), and neon glow effects.
+- **[Next.js 16 (App Router & Turbopack)](https://nextjs.org)**: Server-side rendering, dynamic API routes, and optimized bundle delivery.
+- **[React 19](https://react.dev)**: Next-gen streaming components and UI state hooks.
+- **[Tailwind CSS v4](https://tailwindcss.com)**: Glassmorphism utilities, custom gradient animations, and dark/light color tokens.
 
-### ⚡ Backend & AI Services
-- **[Google Generative AI (`@google/generative-ai`)](https://www.npmjs.com/package/@google/generative-ai)**: Google Gemini 3.6 Flash integration powering real-time streamed responses.
-- **[MongoDB & Mongoose](https://mongoosejs.com)**: Cloud database persistence for user chat logs and history retrieval.
-- **[Mammoth & PDF-Parse](https://www.npmjs.com)**: File stream parsers extracting content from `.docx`, `.pdf`, `.pptx`, and text files.
+### ⚡ Backend & AI Stack
+- **[Google Generative AI SDK (`@google/generative-ai`)](https://www.npmjs.com/package/@google/generative-ai)**: Streamed AI responses.
+- **[MongoDB Atlas & Mongoose 9](https://mongoosejs.com)**: Scalable document database storage.
+- **[Mammoth, PDF-Parse & JSZip](https://www.npmjs.com)**: Document text extraction parsers.
 
 ---
 
