@@ -243,6 +243,13 @@ const LANGUAGES: LanguageOption[] = [
   },
 ];
 
+type ChatSession = {
+  sessionId: string;
+  title: string;
+  updatedAt: string;
+  lastMessage: string;
+};
+
 export default function Home() {
   const [theme, setTheme] = useState<"dark" | "light">("light");
   const [selectedLangCode, setSelectedLangCode] = useState<string>("en-US");
@@ -274,6 +281,11 @@ export default function Home() {
   const [historyMessages, setHistoryMessages] = useState<Message[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
 
+  // ChatGPT-style Left Sidebar & Session History State
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string>(() => `session_${Date.now()}`);
+
   const loadLocalHistory = (): Message[] => {
     if (typeof window === "undefined") return [];
     try {
@@ -297,8 +309,53 @@ export default function Home() {
     }
   };
 
+  const fetchSessionsList = async () => {
+    try {
+      const res = await fetch("/api/chat");
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.sessions && Array.isArray(data.sessions)) {
+        setSessions(data.sessions);
+      }
+    } catch (err) {
+      console.error("Failed to fetch sessions list:", err);
+    }
+  };
+
+  const handleSelectSession = async (sid: string) => {
+    setActiveSessionId(sid);
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/chat?sessionId=${sid}`);
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.messages && Array.isArray(data.messages)) {
+        const loaded: Message[] = data.messages.map((m: any) => ({
+          role: m.role,
+          content: m.content,
+        }));
+        setMessages(loaded);
+      }
+    } catch (err) {
+      console.error("Failed to load session messages:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, sid: string) => {
+    e.stopPropagation();
+    if (!confirm("Delete this conversation thread?")) return;
+    try {
+      await fetch(`/api/chat?sessionId=${sid}`, { method: "DELETE" });
+      setSessions((prev) => prev.filter((s) => s.sessionId !== sid));
+      if (activeSessionId === sid) {
+        handleNewChat();
+      }
+    } catch (err) {
+      console.error("Failed to delete session:", err);
+    }
+  };
+
   const fetchChatHistory = async () => {
-    // Read local history INSTANTLY (0 ms latency)
     const local = loadLocalHistory();
     if (local.length > 0) {
       setHistoryMessages(local);
@@ -320,6 +377,9 @@ export default function Home() {
         if (loaded.length > 0) {
           setHistoryMessages(loaded);
           saveLocalHistory(loaded);
+        }
+        if (data?.sessions && Array.isArray(data.sessions)) {
+          setSessions(data.sessions);
         }
         return loaded;
       } else if (data?.error && local.length === 0) {
@@ -349,6 +409,7 @@ export default function Home() {
     }
     setHistoryMessages([]);
     setMessages([]);
+    setSessions([]);
     try {
       await fetch("/api/chat", { method: "DELETE" });
     } catch (err) {
@@ -622,11 +683,13 @@ export default function Home() {
     if (isListening && recognitionRef.current) {
       recognitionRef.current.stop();
     }
+    const newSid = `session_${Date.now()}`;
+    setActiveSessionId(newSid);
     setMessages([]);
     setInput("");
     setSpeechError(null);
     setAttachedFile(null);
-    fetchChatHistory();
+    fetchSessionsList();
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -686,6 +749,8 @@ export default function Home() {
     setMessages(displayMessages);
     setLoading(true);
 
+    const sessionTitle = query.length > 30 ? query.substring(0, 30) + "..." : query;
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -693,6 +758,8 @@ export default function Home() {
         body: JSON.stringify({
           messages: newMessages,
           language: currentLang.name,
+          sessionId: activeSessionId,
+          title: sessionTitle,
         }),
       });
 
@@ -744,42 +811,195 @@ export default function Home() {
       ]);
     } finally {
       setLoading(false);
+      fetchSessionsList();
       fetchChatHistory();
     }
   };
 
   return (
-    <div className={`relative min-h-[100dvh] w-full flex flex-col items-center justify-between p-2 sm:p-6 transition-colors duration-300 overflow-x-hidden ${theme === "dark" ? "bg-[#0b0f17] text-slate-100" : "bg-white text-slate-900"
-      }`}>
+    <div className={`relative h-dvh w-full flex overflow-hidden ${theme === "dark" ? "bg-[#0b0f17] text-slate-100" : "bg-slate-50 text-slate-900"}`}>
+      {/* Mobile Sidebar Backdrop Overlay */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+        />
+      )}
+
+      {/* CHATGPT-STYLE COLLAPSIBLE LEFT SIDEBAR */}
+      <aside
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 flex flex-col justify-between p-3 transition-all duration-300 ease-in-out shrink-0 ${
+          theme === "dark"
+            ? "bg-[#090d14] border-r border-slate-800/80 text-slate-200"
+            : "bg-slate-900 text-slate-100 border-r border-slate-800"
+        } ${
+          isSidebarOpen
+            ? "translate-x-0"
+            : "-translate-x-full lg:w-0 lg:p-0 lg:overflow-hidden lg:opacity-0"
+        }`}
+      >
+        <div className="flex flex-col gap-3 h-full overflow-hidden">
+          {/* Header & New Chat */}
+          <div className="flex items-center justify-between px-2 pt-1">
+            <div className="flex items-center space-x-2.5">
+              <div className="relative w-8 h-8 rounded-xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan shrink-0">
+                <Image
+                  src="/flower_logo.png"
+                  alt="Pragya AI Logo"
+                  width={32}
+                  height={32}
+                  priority
+                  className="object-cover rounded-lg"
+                />
+              </div>
+              <span className="font-bold text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-cyan-400">
+                Pragya AI
+              </span>
+            </div>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+              title="Close sidebar"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
+
+          <button
+            onClick={handleNewChat}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm border border-slate-700/60 bg-slate-800/50 hover:bg-slate-800 text-slate-100 shadow-sm transition-all group"
+          >
+            <div className="flex items-center space-x-2.5">
+              <svg className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>New chat</span>
+            </div>
+            <svg className="w-4 h-4 text-slate-400 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+
+          {/* Recents list */}
+          <div className="mt-2 flex flex-col flex-1 overflow-hidden">
+            <div className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              Recents
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-1 space-y-1 scrollbar-thin">
+              {sessions.length === 0 ? (
+                <div className="px-3 py-4 text-xs text-slate-500 text-center italic">
+                  No saved conversations yet
+                </div>
+              ) : (
+                sessions.map((sess) => {
+                  const isActive = sess.sessionId === activeSessionId;
+                  return (
+                    <div
+                      key={sess.sessionId}
+                      onClick={() => handleSelectSession(sess.sessionId)}
+                      className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
+                        isActive
+                          ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-sm"
+                          : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2.5 min-w-0 pr-2">
+                        <svg className={`w-4 h-4 shrink-0 ${isActive ? "text-cyan-400" : "text-slate-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        <span className="truncate">{sess.title}</span>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteSession(e, sess.sessionId)}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition-all shrink-0"
+                        title="Delete session"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* User Profile Badge (ChatGPT Style) */}
+          <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between px-2 shrink-0">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white text-xs shrink-0 shadow-md">
+                AB
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-slate-200 truncate">Arpan Basak</span>
+                <span className="text-[10px] text-cyan-400 font-medium">Free Plan</span>
+              </div>
+            </div>
+            <button
+              onClick={() => handleClearHistory()}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              title="Clear all chat history"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN VIEW CONTAINER */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative items-center justify-between p-2 sm:p-6">
 
       {/* Header Bar */}
-      <header className={`relative z-50 w-full max-w-4xl flex items-center justify-between gap-1.5 sm:gap-3 py-2 px-2.5 sm:px-5 rounded-2xl transition-all duration-300 ${theme === "dark"
+      <header className={`relative z-30 w-full max-w-4xl flex items-center justify-between gap-1.5 sm:gap-3 py-2 px-2.5 sm:px-5 rounded-2xl transition-all duration-300 ${theme === "dark"
         ? "glass-panel shadow-2xl border border-slate-800/80"
         : "glass-panel-light shadow-xl border border-slate-200/90 text-slate-900"
         }`}>
-        <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
-          {/* Flower Logo */}
-          <div className="relative w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan">
-            <Image
-              src="/flower_logo.png"
-              alt="Pragya AI Flower Logo"
-              width={40}
-              height={40}
-              priority
-              className="object-cover rounded-md sm:rounded-xl"
-            />
-            <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2 sm:h-2.5 sm:w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-cyan-400"></span>
-            </span>
-          </div>
-          <div>
-            <h1 className={`text-sm sm:text-xl font-black tracking-tight leading-normal inline-block bg-clip-text text-transparent ${theme === "dark"
-              ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
-              : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
-              }`}>
-              Pragya AI
-            </h1>
+        <div className="flex items-center space-x-2">
+          {!isSidebarOpen && (
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className={`p-2 rounded-xl border transition-colors shadow-sm ${
+                theme === "dark"
+                  ? "border-slate-700/60 bg-slate-800/60 text-slate-200 hover:bg-slate-800"
+                  : "border-slate-300 bg-white text-slate-800 hover:bg-slate-100"
+              }`}
+              title="Open Chat History Sidebar"
+            >
+              <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          )}
+          <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
+            {/* Flower Logo */}
+            <div className="relative w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-2xl overflow-hidden p-0.5 border border-cyan-400/50 bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-md glow-cyan">
+              <Image
+                src="/flower_logo.png"
+                alt="Pragya AI Flower Logo"
+                width={40}
+                height={40}
+                priority
+                className="object-cover rounded-md sm:rounded-xl"
+              />
+              <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2 sm:h-2.5 sm:w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-cyan-400"></span>
+              </span>
+            </div>
+            <div>
+              <h1 className={`text-sm sm:text-xl font-black tracking-tight leading-normal inline-block bg-clip-text text-transparent ${theme === "dark"
+                ? "bg-gradient-to-r from-white via-slate-100 to-cyan-400"
+                : "bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-600"
+                }`}>
+                Pragya AI
+              </h1>
+            </div>
           </div>
         </div>
 
@@ -1372,6 +1592,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      </main>
     </div>
   );
 }
