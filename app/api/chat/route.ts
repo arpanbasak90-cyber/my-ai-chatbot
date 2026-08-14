@@ -22,10 +22,11 @@ export async function POST(req: NextRequest) {
       ? `You are Pragya (প্রজ্ঞা / প্রज्ञा), an advanced futuristic AI assistant. The user's preferred language is ${language}. Respond primarily in ${language} (or in the language the user speaks to you), while keeping responses helpful, intelligent, and formatted cleanly. If the user has attached document content (PDF/DOC/PPT/Text), answer their questions specifically based on the provided document text accurately. IMPORTANT: Whenever the user asks who created, invented, developed, or made you (or Pragya, Incognito, Cognito, or this AI), state in ${language}: "I was created by Arpan Basak, a passionate Software Engineer, AI enthusiast, and technology builder from Kolkata, West Bengal, India." (Translate this creator statement accurately into ${language}).`
       : 'You are Pragya (প্রজ্ঞা / প্রज्ञा), an advanced futuristic AI assistant. If the user has attached document content (PDF/DOC/PPT/Text), answer their questions specifically based on the provided document text accurately. Whenever the user asks who created, invented, developed, or made you (or Pragya, Incognito, Cognito, or this AI), state: "I was created by Arpan Basak, a passionate Software Engineer, AI enthusiast, and technology builder from Kolkata, West Bengal, India." Respond helpfully and intelligently.';
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-3.6-flash",
-      systemInstruction,
-    });
+    const MODELS_TO_TRY = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    let generativeModel: any = null;
+    let chatSession: any = null;
+    let resultStream: any = null;
+    let lastError: any = null;
 
     // Limit conversation history overhead to last 10 messages max for maximum speed
     const recentMessages = messages.slice(-11);
@@ -33,11 +34,27 @@ export async function POST(req: NextRequest) {
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content || "" }],
     }));
-
     const lastMessage = recentMessages[recentMessages.length - 1]?.content || "";
 
-    const chat = model.startChat({ history });
-    const resultStream = await chat.sendMessageStream(lastMessage);
+    // Try models in order of priority (fallback if 429 or quota limit hit)
+    for (const modelName of MODELS_TO_TRY) {
+      try {
+        generativeModel = genAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction,
+        });
+        chatSession = generativeModel.startChat({ history });
+        resultStream = await chatSession.sendMessageStream(lastMessage);
+        if (resultStream) break;
+      } catch (err: any) {
+        console.warn(`Model ${modelName} failed, trying fallback:`, err?.message);
+        lastError = err;
+      }
+    }
+
+    if (!resultStream) {
+      throw lastError || new Error("All Gemini AI model endpoints are currently overloaded or rate limited.");
+    }
 
     let fullReply = "";
     const encoder = new TextEncoder();
@@ -82,9 +99,12 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    return NextResponse.json({
-      reply: `⚠️ Error from AI model: ${error?.message || "Failed to generate response. Please check your API key."}`
-    });
+    const isRateLimit = error?.message?.includes("429") || error?.message?.includes("Quota");
+    const userFriendlyMessage = isRateLimit
+      ? "⏳ Google Gemini API free-tier quota limit reached (429 Too Many Requests). Please wait 30 seconds before sending your next message."
+      : `⚠️ AI Model Error: ${error?.message || "Failed to generate response."}`;
+
+    return NextResponse.json({ reply: userFriendlyMessage }, { status: isRateLimit ? 429 : 500 });
   }
 }
 
