@@ -561,14 +561,16 @@ export default function Home() {
 
     // Find specifically selected voice or matching language voice
     let voiceToUse = voices.find((v) => v.voiceURI === selectedVoiceURI);
-    if (!voiceToUse) {
+    const voiceSupportsLang = voiceToUse && voiceToUse.lang.toLowerCase().startsWith(langPrefix);
+
+    if (!voiceSupportsLang) {
       voiceToUse =
         voices.find((v) => v.lang.toLowerCase() === selectedLangCode.toLowerCase()) ||
         voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix));
     }
 
-    // Check if the matched voice actually matches the target language prefix (e.g. "bn")
-    const isLanguageMatch = voiceToUse && (voiceToUse.lang.toLowerCase().startsWith(langPrefix) || !!selectedVoiceURI);
+    // Only use browser WebSpeech if the voice ACTUALLY supports the target language (e.g. "bn")
+    const isLanguageMatch = voiceToUse && voiceToUse.lang.toLowerCase().startsWith(langPrefix);
 
     if (isLanguageMatch && "speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(cleanText);
@@ -579,7 +581,7 @@ export default function Home() {
       setIsSpeaking(true);
       window.speechSynthesis.speak(utterance);
     } else {
-      // If OS/Browser has no native Bengali/target voice installed, use high-quality Google TTS Audio
+      // If voice does not natively support Bengali or target language, use high-quality Google TTS Audio
       playFallbackTTS(cleanText, selectedLangCode);
     }
   };
