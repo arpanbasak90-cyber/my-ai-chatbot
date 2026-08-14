@@ -574,12 +574,38 @@ export default function Home() {
           language: currentLang.name,
         }),
       });
-      const data = await res.json();
-      const replyText = data.reply || data.error || "No response received from Pragya server.";
+
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => null);
+        const replyText = data?.reply || data?.error || "Failed to reach Pragya AI backend.";
+        setMessages([
+          ...displayMessages,
+          { role: "assistant", content: replyText },
+        ]);
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let streamedReply = "";
+
+      // Add placeholder assistant message and turn off spinner once stream starts
       setMessages([
         ...displayMessages,
-        { role: "assistant", content: replyText },
+        { role: "assistant", content: "" },
       ]);
+      setLoading(false);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        streamedReply += chunk;
+        setMessages([
+          ...displayMessages,
+          { role: "assistant", content: streamedReply },
+        ]);
+      }
     } catch (err) {
       console.error(err);
       setMessages([

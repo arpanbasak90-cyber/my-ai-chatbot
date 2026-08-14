@@ -27,29 +27,54 @@ export async function POST(req: NextRequest) {
       systemInstruction,
     });
 
-    // Format chat history
-    const history = messages.slice(0, -1).map((m: any) => ({
+    // Limit conversation history overhead to last 10 messages max for maximum speed
+    const recentMessages = messages.slice(-11);
+    const history = recentMessages.slice(0, -1).map((m: any) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content || "" }],
     }));
 
-    const lastMessage = messages[messages.length - 1]?.content || "";
+    const lastMessage = recentMessages[recentMessages.length - 1]?.content || "";
 
     const chat = model.startChat({ history });
-    const result = await chat.sendMessage(lastMessage);
-    const reply = result.response.text();
+    const resultStream = await chat.sendMessageStream(lastMessage);
 
-    // Save both the user's message and the AI's reply to MongoDB
-    try {
-      await connectDB();
-      await Chat.create({ role: "user", content: lastMessage });
-      await Chat.create({ role: "assistant", content: reply });
-    } catch (dbError) {
-      console.error("MongoDB save error:", dbError);
-      // Don't fail the whole request if saving history fails
-    }
+    let fullReply = "";
+    const encoder = new TextEncoder();
 
-    return NextResponse.json({ reply });
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of resultStream.stream) {
+            const chunkText = chunk.text();
+            fullReply += chunkText;
+            controller.enqueue(encoder.encode(chunkText));
+          }
+        } catch (streamError) {
+          console.error("Stream generation error:", streamError);
+        } finally {
+          controller.close();
+          // Asynchronously save to MongoDB without delaying response delivery
+          if (fullReply.trim()) {
+            connectDB()
+              .then(() => {
+                Chat.insertMany([
+                  { role: "user", content: lastMessage },
+                  { role: "assistant", content: fullReply },
+                ]).catch((err) => console.error("MongoDB batch save error:", err));
+              })
+              .catch((err) => console.error("MongoDB conn error:", err));
+          }
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+      },
+    });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     return NextResponse.json({
