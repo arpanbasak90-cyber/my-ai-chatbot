@@ -271,26 +271,32 @@ export default function Home() {
   const [fetchingHistory, setFetchingHistory] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyMessages, setHistoryMessages] = useState<Message[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
   const fetchChatHistory = async () => {
     setFetchingHistory(true);
+    setHistoryError(null);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
       const res = await fetch("/api/chat", { signal: controller.signal });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.messages && Array.isArray(data.messages)) {
-          const loaded: Message[] = data.messages.map((m: any) => ({
-            role: m.role,
-            content: m.content,
-          }));
-          setHistoryMessages(loaded);
-          return loaded;
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.messages && Array.isArray(data.messages)) {
+        const loaded: Message[] = data.messages.map((m: any) => ({
+          role: m.role,
+          content: m.content,
+        }));
+        setHistoryMessages(loaded);
+        if (data.error && loaded.length === 0) {
+          setHistoryError(data.error);
         }
+        return loaded;
+      } else if (data?.error) {
+        setHistoryError(data.error);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load chat history from MongoDB:", err);
+      setHistoryError(err?.message || "Failed to connect to MongoDB server");
     } finally {
       clearTimeout(timeoutId);
       setFetchingHistory(false);
@@ -1194,6 +1200,12 @@ export default function Home() {
                 <div className="flex items-center justify-center py-12 text-slate-400 space-x-2">
                   <div className="w-4 h-4 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
                   <span className="text-xs font-mono">Loading from MongoDB...</span>
+                </div>
+              ) : historyError ? (
+                <div className="text-center py-10 px-4 text-rose-400 text-xs font-mono bg-rose-950/20 rounded-2xl border border-rose-500/30">
+                  <p className="font-bold text-sm mb-1">⚠️ Unable to Load History</p>
+                  <p className="opacity-80 leading-relaxed">{historyError}</p>
+                  <p className="text-[10px] opacity-60 mt-2">Please ensure MONGO_URI is added in your Vercel Environment Variables.</p>
                 </div>
               ) : historyMessages.length === 0 ? (
                 <div className="text-center py-12 text-slate-400 text-sm">

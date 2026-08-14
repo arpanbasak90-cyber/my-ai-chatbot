@@ -56,14 +56,19 @@ export async function POST(req: NextRequest) {
           controller.close();
           // Asynchronously save to MongoDB without delaying response delivery
           if (fullReply.trim()) {
-            connectDB()
-              .then(() => {
-                Chat.insertMany([
-                  { role: "user", content: lastMessage },
-                  { role: "assistant", content: fullReply },
-                ]).catch((err) => console.error("MongoDB batch save error:", err));
-              })
-              .catch((err) => console.error("MongoDB conn error:", err));
+            (async () => {
+              try {
+                const conn = await connectDB();
+                if (conn) {
+                  await Chat.insertMany([
+                    { role: "user", content: lastMessage },
+                    { role: "assistant", content: fullReply },
+                  ]);
+                }
+              } catch (dbErr) {
+                console.error("MongoDB background save error:", dbErr);
+              }
+            })();
           }
         }
       },
@@ -88,13 +93,13 @@ export async function GET() {
     const conn = await connectDB();
     if (!conn) {
       console.warn("MongoDB connection unavailable for GET /api/chat");
-      return NextResponse.json({ messages: [] });
+      return NextResponse.json({ messages: [], error: "MongoDB URI not configured or failed to connect" });
     }
     const chats = await Chat.find({}).sort({ createdAt: 1 }).limit(100).lean();
     return NextResponse.json({ messages: chats });
   } catch (error: any) {
     console.error("MongoDB load error:", error);
-    return NextResponse.json({ messages: [] });
+    return NextResponse.json({ messages: [], error: error?.message || "Failed to query database" });
   }
 }
 
