@@ -274,8 +274,10 @@ export default function Home() {
 
   const fetchChatHistory = async () => {
     setFetchingHistory(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch("/api/chat");
+      const res = await fetch("/api/chat", { signal: controller.signal });
       if (res.ok) {
         const data = await res.json();
         if (data.messages && Array.isArray(data.messages)) {
@@ -290,6 +292,7 @@ export default function Home() {
     } catch (err) {
       console.error("Failed to load chat history from MongoDB:", err);
     } finally {
+      clearTimeout(timeoutId);
       setFetchingHistory(false);
     }
     return [];

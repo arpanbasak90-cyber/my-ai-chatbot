@@ -85,8 +85,12 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    await connectDB();
-    const chats = await Chat.find({}).sort({ createdAt: 1 }).limit(100);
+    const conn = await connectDB();
+    if (!conn) {
+      console.warn("MongoDB connection unavailable for GET /api/chat");
+      return NextResponse.json({ messages: [] });
+    }
+    const chats = await Chat.find({}).sort({ createdAt: 1 }).limit(100).lean();
     return NextResponse.json({ messages: chats });
   } catch (error: any) {
     console.error("MongoDB load error:", error);
@@ -96,7 +100,10 @@ export async function GET() {
 
 export async function DELETE() {
   try {
-    await connectDB();
+    const conn = await connectDB();
+    if (!conn) {
+      return NextResponse.json({ error: "MongoDB connection unavailable" }, { status: 500 });
+    }
     await Chat.deleteMany({});
     return NextResponse.json({ message: "History deleted successfully" });
   } catch (error: any) {
