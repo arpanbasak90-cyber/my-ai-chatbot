@@ -559,29 +559,54 @@ export default function Home() {
     const voices = availableVoices.length > 0 ? availableVoices : ("speechSynthesis" in window ? window.speechSynthesis.getVoices() : []);
     const langPrefix = selectedLangCode.split("-")[0];
 
-    // Find specifically selected voice or matching language voice
+    // Find specifically selected voice URI or fallback to language match
     let voiceToUse = voices.find((v) => v.voiceURI === selectedVoiceURI);
-    const voiceSupportsLang = voiceToUse && voiceToUse.lang.toLowerCase().startsWith(langPrefix);
-
-    if (!voiceSupportsLang) {
+    
+    if (!voiceToUse) {
       voiceToUse =
         voices.find((v) => v.lang.toLowerCase() === selectedLangCode.toLowerCase()) ||
         voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix));
     }
 
-    // Only use browser WebSpeech if the voice ACTUALLY supports the target language (e.g. "bn")
-    const isLanguageMatch = voiceToUse && voiceToUse.lang.toLowerCase().startsWith(langPrefix);
+    const isBengaliOrNonEnglish = langPrefix === "bn" || langPrefix === "hi";
 
-    if (isLanguageMatch && "speechSynthesis" in window) {
+    if (voiceToUse && !isBengaliOrNonEnglish && "speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = selectedLangCode;
-      utterance.voice = voiceToUse!;
+      utterance.voice = voiceToUse;
+      // Crucial fix: Match utterance.lang to voiceToUse.lang so browser engine uses the exact voice
+      utterance.lang = voiceToUse.lang || selectedLangCode;
+
+      // Fine-tune voice pitch & rate for distinct Male/Female voice tones
+      const lowerName = voiceToUse.name.toLowerCase();
+      if (
+        lowerName.includes("female") ||
+        lowerName.includes("zira") ||
+        lowerName.includes("hazel") ||
+        lowerName.includes("susan") ||
+        lowerName.includes("heera") ||
+        lowerName.includes("samantha") ||
+        lowerName.includes("karen") ||
+        lowerName.includes("adri")
+      ) {
+        utterance.pitch = 1.25; // Higher female voice pitch
+        utterance.rate = 1.0;
+      } else if (
+        lowerName.includes("male") ||
+        lowerName.includes("david") ||
+        lowerName.includes("ravi") ||
+        lowerName.includes("george") ||
+        lowerName.includes("mark")
+      ) {
+        utterance.pitch = 0.85; // Deeper male voice pitch
+        utterance.rate = 0.95;
+      }
+
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
       setIsSpeaking(true);
       window.speechSynthesis.speak(utterance);
     } else {
-      // If voice does not natively support Bengali or target language, use high-quality Google TTS Audio
+      // For Bengali / Hindi or if voice isn't native, use high-quality Google TTS Audio
       playFallbackTTS(cleanText, selectedLangCode);
     }
   };
