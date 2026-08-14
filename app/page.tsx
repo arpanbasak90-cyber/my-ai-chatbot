@@ -273,11 +273,41 @@ export default function Home() {
   const [historyMessages, setHistoryMessages] = useState<Message[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
 
+  const loadLocalHistory = (): Message[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("pragya_chat_history");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error("Local history error:", e);
+    }
+    return [];
+  };
+
+  const saveLocalHistory = (msgs: Message[]) => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("pragya_chat_history", JSON.stringify(msgs));
+    } catch (e) {
+      console.error("Local history save error:", e);
+    }
+  };
+
   const fetchChatHistory = async () => {
-    setFetchingHistory(true);
+    // Read local history INSTANTLY (0 ms latency)
+    const local = loadLocalHistory();
+    if (local.length > 0) {
+      setHistoryMessages(local);
+    } else {
+      setFetchingHistory(true);
+    }
+
     setHistoryError(null);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     try {
       const res = await fetch("/api/chat", { signal: controller.signal });
       const data = await res.json().catch(() => null);
@@ -286,39 +316,42 @@ export default function Home() {
           role: m.role,
           content: m.content,
         }));
-        setHistoryMessages(loaded);
-        if (data.error && loaded.length === 0) {
-          setHistoryError(data.error);
+        if (loaded.length > 0) {
+          setHistoryMessages(loaded);
+          saveLocalHistory(loaded);
         }
         return loaded;
-      } else if (data?.error) {
+      } else if (data?.error && local.length === 0) {
         setHistoryError(data.error);
       }
     } catch (err: any) {
       console.error("Failed to load chat history from MongoDB:", err);
-      if (err?.name === "AbortError") {
-        setHistoryError("Database connection timed out. Please click Refresh to try again.");
-      } else {
-        setHistoryError(err?.message || "Failed to connect to MongoDB server");
+      if (local.length === 0) {
+        if (err?.name === "AbortError") {
+          setHistoryError("Cloud database sync timed out.");
+        } else {
+          setHistoryError(err?.message || "Failed to connect to cloud database");
+        }
       }
     } finally {
       clearTimeout(timeoutId);
       setFetchingHistory(false);
     }
-    return [];
+    return local;
   };
 
   const handleClearHistory = async () => {
-    if (!confirm("Are you sure you want to clear all chat history from MongoDB?")) return;
+    if (!confirm("Are you sure you want to clear all chat history?")) return;
     setFetchingHistory(true);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("pragya_chat_history");
+    }
+    setHistoryMessages([]);
+    setMessages([]);
     try {
-      const res = await fetch("/api/chat", { method: "DELETE" });
-      if (res.ok) {
-        setHistoryMessages([]);
-        setMessages([]);
-      }
+      await fetch("/api/chat", { method: "DELETE" });
     } catch (err) {
-      console.error("Failed to clear chat history:", err);
+      console.error("Failed to clear cloud history:", err);
     } finally {
       setFetchingHistory(false);
     }
@@ -377,20 +410,23 @@ export default function Home() {
     };
   }, []);
 
-  // Load past chat history from MongoDB when the page first opens
+  // Load past chat history on initial render instantly from LocalStorage & sync from MongoDB
   useEffect(() => {
-    const loadHistory = async () => {
-      const loaded = await fetchChatHistory();
-      if (loaded.length > 0) {
-        setMessages(loaded);
-      }
-    };
-    loadHistory();
+    const local = loadLocalHistory();
+    if (local.length > 0) {
+      setMessages(local);
+      setHistoryMessages(local);
+    }
+    fetchChatHistory();
   }, []);
 
   // Auto-fetch history when history drawer opens
   useEffect(() => {
     if (isHistoryOpen) {
+      const local = loadLocalHistory();
+      if (local.length > 0) {
+        setHistoryMessages(local);
+      }
       fetchChatHistory();
     }
   }, [isHistoryOpen]);
@@ -618,6 +654,15 @@ export default function Home() {
           ...displayMessages,
           { role: "assistant", content: streamedReply },
         ]);
+      }
+
+      if (streamedReply.trim()) {
+        const updated: Message[] = [
+          ...displayMessages,
+          { role: "assistant", content: streamedReply },
+        ];
+        setHistoryMessages(updated);
+        saveLocalHistory(updated);
       }
     } catch (err) {
       console.error(err);
