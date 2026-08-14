@@ -270,6 +270,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fetchingHistory, setFetchingHistory] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyMessages, setHistoryMessages] = useState<Message[]>([]);
 
   const fetchChatHistory = async () => {
     setFetchingHistory(true);
@@ -278,18 +279,42 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         if (data.messages && Array.isArray(data.messages)) {
-          setMessages(
-            data.messages.map((m: any) => ({
-              role: m.role,
-              content: m.content,
-            }))
-          );
+          const loaded: Message[] = data.messages.map((m: any) => ({
+            role: m.role,
+            content: m.content,
+          }));
+          setHistoryMessages(loaded);
+          return loaded;
         }
       }
     } catch (err) {
       console.error("Failed to load chat history from MongoDB:", err);
     } finally {
       setFetchingHistory(false);
+    }
+    return [];
+  };
+
+  const handleClearHistory = async () => {
+    if (!confirm("Are you sure you want to clear all chat history from MongoDB?")) return;
+    setFetchingHistory(true);
+    try {
+      const res = await fetch("/api/chat", { method: "DELETE" });
+      if (res.ok) {
+        setHistoryMessages([]);
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error("Failed to clear chat history:", err);
+    } finally {
+      setFetchingHistory(false);
+    }
+  };
+
+  const handleLoadHistoryToChat = () => {
+    if (historyMessages.length > 0) {
+      setMessages(historyMessages);
+      setIsHistoryOpen(false);
     }
   };
 
@@ -342,22 +367,20 @@ export default function Home() {
   // Load past chat history from MongoDB when the page first opens
   useEffect(() => {
     const loadHistory = async () => {
-      try {
-        const res = await fetch("/api/chat");
-        const data = await res.json();
-        if (data.messages && Array.isArray(data.messages)) {
-          const loadedMessages: Message[] = data.messages.map((m: any) => ({
-            role: m.role,
-            content: m.content,
-          }));
-          setMessages(loadedMessages);
-        }
-      } catch (err) {
-        console.error("Failed to load chat history:", err);
+      const loaded = await fetchChatHistory();
+      if (loaded.length > 0) {
+        setMessages(loaded);
       }
     };
     loadHistory();
   }, []);
+
+  // Auto-fetch history when history drawer opens
+  useEffect(() => {
+    if (isHistoryOpen) {
+      fetchChatHistory();
+    }
+  }, [isHistoryOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -564,6 +587,7 @@ export default function Home() {
       ]);
     } finally {
       setLoading(false);
+      fetchChatHistory();
     }
   };
 
@@ -1097,6 +1121,20 @@ export default function Home() {
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
+                  onClick={handleClearHistory}
+                  disabled={fetchingHistory || historyMessages.length === 0}
+                  className={`p-2 rounded-xl text-xs font-semibold border transition-all ${theme === "dark"
+                      ? "bg-rose-950/40 border-rose-500/40 text-rose-300 hover:bg-rose-900/60"
+                      : "bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100"
+                    } disabled:opacity-40 disabled:cursor-not-allowed`}
+                  title="Clear all history from MongoDB"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
                   onClick={fetchChatHistory}
                   disabled={fetchingHistory}
                   className={`p-2 rounded-xl text-xs font-semibold border transition-all ${theme === "dark"
@@ -1127,13 +1165,13 @@ export default function Home() {
                   <div className="w-4 h-4 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
                   <span className="text-xs font-mono">Loading from MongoDB...</span>
                 </div>
-              ) : messages.length === 0 ? (
+              ) : historyMessages.length === 0 ? (
                 <div className="text-center py-12 text-slate-400 text-sm">
                   <p>No chat history found in database.</p>
                   <p className="text-xs mt-1 opacity-70">Start sending messages to build history!</p>
                 </div>
               ) : (
-                messages.map((msg, idx) => (
+                historyMessages.map((msg, idx) => (
                   <div
                     key={idx}
                     className={`p-3.5 rounded-xl border text-xs leading-relaxed transition-all ${msg.role === "user"
@@ -1156,14 +1194,22 @@ export default function Home() {
               )}
             </div>
 
-            {/* Footer */}
-            <div className="pt-3 border-t border-slate-700/40 text-center">
+            {/* Footer Actions */}
+            <div className="pt-3 border-t border-slate-700/40 flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={handleLoadHistoryToChat}
+                disabled={historyMessages.length === 0}
+                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold border border-cyan-500/30 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Load into Active Chat
+              </button>
               <button
                 type="button"
                 onClick={() => setIsHistoryOpen(false)}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white text-xs font-semibold hover:from-indigo-500 hover:to-cyan-500 transition shadow-md glow-cyan"
+                className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white text-xs font-semibold hover:from-indigo-500 hover:to-cyan-500 transition shadow-md glow-cyan"
               >
-                Close Drawer
+                Close
               </button>
             </div>
           </div>

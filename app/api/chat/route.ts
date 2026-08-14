@@ -68,3 +68,14 @@ export async function GET() {
     return NextResponse.json({ messages: [] });
   }
 }
+
+export async function DELETE() {
+  try {
+    await connectDB();
+    await Chat.deleteMany({});
+    return NextResponse.json({ message: "History deleted successfully" });
+  } catch (error: any) {
+    console.error("MongoDB delete error:", error);
+    return NextResponse.json({ error: "Failed to delete chat history" }, { status: 500 });
+  }
+}
