@@ -259,6 +259,7 @@ export default function Home() {
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>("");
@@ -509,42 +510,86 @@ export default function Home() {
     }
   };
 
+  const playFallbackTTS = (cleanText: string, langCode: string) => {
+    const langPrefix = langCode.split("-")[0];
+    const sampleText = cleanText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, "").trim();
+    if (!sampleText) return;
+
+    const chunk = sampleText.substring(0, 200);
+    const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langPrefix}&client=tw-ob&q=${encodeURIComponent(chunk)}`;
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+
+    audio.onended = () => setIsSpeaking(false);
+    audio.onerror = () => {
+      console.warn("Fallback audio error, trying browser WebSpeech");
+      setIsSpeaking(false);
+      if ("speechSynthesis" in window) {
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = langCode;
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    setIsSpeaking(true);
+    audio.play().catch((err) => {
+      console.error("Audio playback error:", err);
+      setIsSpeaking(false);
+    });
+  };
+
   const speakText = (text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (typeof window === "undefined") return;
+
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      if (audioRef.current) audioRef.current.pause();
       setIsSpeaking(false);
       return;
     }
-    const cleanText = text.replace(/[*#_`]/g, "");
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = selectedLangCode;
 
-    const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+    const cleanText = text.replace(/[*#_`]/g, "").trim();
+    if (!cleanText) return;
+
+    const voices = availableVoices.length > 0 ? availableVoices : ("speechSynthesis" in window ? window.speechSynthesis.getVoices() : []);
+    const langPrefix = selectedLangCode.split("-")[0];
 
     // Find specifically selected voice or matching language voice
     let voiceToUse = voices.find((v) => v.voiceURI === selectedVoiceURI);
-
     if (!voiceToUse) {
-      const langPrefix = selectedLangCode.split("-")[0];
       voiceToUse =
-        voices.find((v) => v.lang === selectedLangCode) ||
-        voices.find((v) => v.lang.startsWith(langPrefix));
+        voices.find((v) => v.lang.toLowerCase() === selectedLangCode.toLowerCase()) ||
+        voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix));
     }
 
-    if (voiceToUse) {
-      utterance.voice = voiceToUse;
-    }
+    // Check if the matched voice actually matches the target language prefix (e.g. "bn")
+    const isLanguageMatch = voiceToUse && (voiceToUse.lang.toLowerCase().startsWith(langPrefix) || !!selectedVoiceURI);
 
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    if (isLanguageMatch && "speechSynthesis" in window) {
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = selectedLangCode;
+      utterance.voice = voiceToUse!;
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      setIsSpeaking(true);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      // If OS/Browser has no native Bengali/target voice installed, use high-quality Google TTS Audio
+      playFallbackTTS(cleanText, selectedLangCode);
+    }
   };
 
   const handleNewChat = () => {
-    if (isSpeaking && typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    if (isSpeaking) {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (audioRef.current) audioRef.current.pause();
       setIsSpeaking(false);
     }
     if (isListening && recognitionRef.current) {
