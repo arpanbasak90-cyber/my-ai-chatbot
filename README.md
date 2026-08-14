@@ -29,17 +29,117 @@
 
 </div>
 
----
-
-## 👨‍💻 Creator & Inventor
-
-**Pragya AI** was created, architected, and engineered by **Arpan Basak**, a Software Engineer and AI enthusiast from Kolkata, West Bengal, India.
-
----
-
 ## 🚀 Live Production URL
 
 🔗 **[https://my-ai-chatbot-ten-roan.vercel.app](https://my-ai-chatbot-ten-roan.vercel.app)**
+
+---
+
+## 🏗️ System Architecture & Workflow
+
+### 📐 High-Level Architecture Diagram
+```mermaid
+graph TD
+    User["👤 User / Client Interface (React 19 + Tailwind v4)"]
+    
+    subgraph Frontend["🌐 Frontend Layer (Next.js 16 App Router)"]
+        UI["💬 Chat UI & Controls (Voice, Language, Theme, Upload)"]
+        STT["🎙️ Speech-to-Text (Web Speech API)"]
+        TTS["🔊 Text-to-Speech Engine"]
+    end
+
+    subgraph Backend["⚡ Serverless API Layer"]
+        ParseRoute["📄 /api/parse-document (PDF, DOCX, PPTX, TXT, CSV)"]
+        ChatRoute["🤖 /api/chat (Streaming Response & Fallback Engine)"]
+    end
+
+    subgraph External["🔮 External AI & Data Services"]
+        Gemini["✨ Google Gemini AI (3.5-Flash / 3.5-Flash-Lite / 3.1-Flash-Lite)"]
+        MongoDB[("💾 MongoDB Atlas (Chat Logs Storage)")]
+    end
+
+    User --> UI
+    UI <--> STT
+    UI <--> TTS
+    UI -- "Upload Files" --> ParseRoute
+    UI -- "Send Messages (Stream)" --> ChatRoute
+    ChatRoute -- "Multi-Model Query" --> Gemini
+    Gemini -- "Chunked SSE Stream" --> ChatRoute
+    ChatRoute -- "Background Async Save" --> MongoDB
+```
+
+---
+
+### 🔄 End-to-End User Request & Document Workflow
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User
+    participant UI as Chat UI (React 19)
+    participant DocAPI as /api/parse-document
+    participant ChatAPI as /api/chat
+    participant Gemini as Google Gemini AI
+    participant DB as MongoDB Atlas
+
+    opt Document Attachment
+        User->>UI: Upload PDF / DOCX / PPTX / Text File
+        UI->>DocAPI: POST multipart file stream
+        DocAPI-->>UI: Return extracted text content
+    end
+
+    User->>UI: Submit Message / Voice Query
+    UI->>ChatAPI: POST JSON (Messages + Context + Language)
+    
+    loop Fallback Execution Loop
+        ChatAPI->>Gemini: Try Model (gemini-3.5-flash -> fallback list)
+        alt Success
+            Gemini-->>ChatAPI: Stream response chunks
+        else Rate Limit (429) / Unreachable (404)
+            ChatAPI->>Gemini: Try next fallback model in chain
+        end
+    end
+
+    ChatAPI-->>UI: Chunked Text Stream (ReadableStream)
+    UI-->>User: Render real-time markdown & TTS audio
+    
+    opt Async Background Save
+        ChatAPI->>DB: Insert User & Assistant messages into Chat model
+    end
+```
+
+---
+
+## 📁 Repository Folder Architecture
+
+```
+my-ai-chatbot/
+├── app/                        # Next.js 16 App Router Directory
+│   ├── api/                    # Serverless Backend API Routes
+│   │   ├── chat/               # Gemini AI Chat Streaming & MongoDB sync handler
+│   │   │   └── route.ts        # POST (stream response), GET (history), DELETE (clear)
+│   │   └── parse-document/     # Document Text Extraction Service
+│   │       └── route.ts        # PDF, DOCX (Mammoth), PPTX (JSZip), CSV, TXT parser
+│   ├── favicon.ico             # App Favicon Icon
+│   ├── globals.css             # Tailwind v4 & Glassmorphic Custom CSS Design System
+│   ├── layout.tsx              # Root HTML Layout & Font Setup
+│   └── page.tsx                # Main Chat Dashboard UI & Modal Components
+├── lib/                        # Core Helper Utilities & Database Connectors
+│   └── mongodb.ts              # Cached Mongoose MongoDB Atlas connection module
+├── models/                     # Database Schemas & Mongoose Models
+│   └── chat.ts                 # Chat schema definition (role, content, timestamp)
+├── public/                     # Static Assets & Documentation Media
+│   ├── screenshots/            # Showcase Screenshots for README
+│   │   ├── home_dashboard.png       # Landing Dashboard View
+│   │   ├── chat_interface.png       # Streaming Chat Interface View
+│   │   └── chat_history_modal.png   # Saved Chat History Modal View
+│   ├── pragya_ai_preview.jpg   # Main Application Banner Preview
+│   └── logo graphics           # Brand logos and iconography
+├── .env.local                  # Environment Variables (GEMINI_API_KEY, MONGO_URI)
+├── next.config.ts              # Next.js Configuration
+├── package.json                # Project Dependencies & NPM Scripts
+├── tsconfig.json               # TypeScript Compiler Configuration
+└── README.md                   # Comprehensive Technical Documentation
+```
 
 ---
 
