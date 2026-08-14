@@ -505,6 +505,7 @@ export default function Home() {
     setInput("");
     setSpeechError(null);
     setAttachedFile(null);
+    fetchChatHistory();
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
