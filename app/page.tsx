@@ -309,12 +309,64 @@ export default function Home() {
     }
   };
 
+  const loadLocalSessions = (): ChatSession[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("pragya_chat_sessions");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error("Local sessions load error:", e);
+    }
+    return [];
+  };
+
+  const saveLocalSessions = (sessList: ChatSession[]) => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("pragya_chat_sessions", JSON.stringify(sessList));
+    } catch (e) {
+      console.error("Local sessions save error:", e);
+    }
+  };
+
+  const saveSessionMessages = (sid: string, msgs: Message[]) => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(`pragya_session_${sid}`, JSON.stringify(msgs));
+    } catch (e) {
+      console.error("Local session msgs save error:", e);
+    }
+  };
+
+  const loadSessionMessages = (sid: string): Message[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem(`pragya_session_${sid}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error("Local session msgs load error:", e);
+    }
+    return [];
+  };
+
   const fetchSessionsList = async () => {
+    // Read local sessions first for instant UI response
+    const localSess = loadLocalSessions();
+    if (localSess.length > 0) {
+      setSessions(localSess);
+    }
     try {
       const res = await fetch("/api/chat");
       const data = await res.json().catch(() => null);
-      if (res.ok && data?.sessions && Array.isArray(data.sessions)) {
+      if (res.ok && data?.sessions && Array.isArray(data.sessions) && data.sessions.length > 0) {
         setSessions(data.sessions);
+        saveLocalSessions(data.sessions);
       }
     } catch (err) {
       console.error("Failed to fetch sessions list:", err);
@@ -323,7 +375,13 @@ export default function Home() {
 
   const handleSelectSession = async (sid: string) => {
     setActiveSessionId(sid);
-    setLoading(true);
+    const localMsgs = loadSessionMessages(sid);
+    if (localMsgs.length > 0) {
+      setMessages(localMsgs);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const res = await fetch(`/api/chat?sessionId=${sid}`);
       const data = await res.json().catch(() => null);
@@ -332,7 +390,10 @@ export default function Home() {
           role: m.role,
           content: m.content,
         }));
-        setMessages(loaded);
+        if (loaded.length > 0) {
+          setMessages(loaded);
+          saveSessionMessages(sid, loaded);
+        }
       }
     } catch (err) {
       console.error("Failed to load session messages:", err);
@@ -344,12 +405,21 @@ export default function Home() {
   const handleDeleteSession = async (e: React.MouseEvent, sid: string) => {
     e.stopPropagation();
     if (!confirm("Delete this conversation thread?")) return;
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(`pragya_session_${sid}`);
+    }
+    setSessions((prev) => {
+      const filtered = prev.filter((s) => s.sessionId !== sid);
+      saveLocalSessions(filtered);
+      return filtered;
+    });
+
+    if (activeSessionId === sid) {
+      handleNewChat();
+    }
+
     try {
       await fetch(`/api/chat?sessionId=${sid}`, { method: "DELETE" });
-      setSessions((prev) => prev.filter((s) => s.sessionId !== sid));
-      if (activeSessionId === sid) {
-        handleNewChat();
-      }
     } catch (err) {
       console.error("Failed to delete session:", err);
     }
@@ -378,8 +448,9 @@ export default function Home() {
           setHistoryMessages(loaded);
           saveLocalHistory(loaded);
         }
-        if (data?.sessions && Array.isArray(data.sessions)) {
+        if (data?.sessions && Array.isArray(data.sessions) && data.sessions.length > 0) {
           setSessions(data.sessions);
+          saveLocalSessions(data.sessions);
         }
         return loaded;
       } else if (data?.error && local.length === 0) {
@@ -406,6 +477,7 @@ export default function Home() {
     setFetchingHistory(true);
     if (typeof window !== "undefined") {
       localStorage.removeItem("pragya_chat_history");
+      localStorage.removeItem("pragya_chat_sessions");
     }
     setHistoryMessages([]);
     setMessages([]);
@@ -751,6 +823,29 @@ export default function Home() {
 
     const sessionTitle = query.length > 30 ? query.substring(0, 30) + "..." : query;
 
+    // Immediately create / update session in Recents list locally
+    setSessions((prev) => {
+      const exists = prev.find((s) => s.sessionId === activeSessionId);
+      let updated: ChatSession[];
+      if (exists) {
+        updated = prev.map((s) =>
+          s.sessionId === activeSessionId
+            ? { ...s, lastMessage: query, updatedAt: new Date().toISOString() }
+            : s
+        );
+      } else {
+        const newSess: ChatSession = {
+          sessionId: activeSessionId,
+          title: sessionTitle,
+          updatedAt: new Date().toISOString(),
+          lastMessage: query,
+        };
+        updated = [newSess, ...prev];
+      }
+      saveLocalSessions(updated);
+      return updated;
+    });
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -766,10 +861,12 @@ export default function Home() {
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => null);
         const replyText = data?.reply || data?.error || "Failed to reach Pragya AI backend.";
-        setMessages([
+        const failedMsgs: Message[] = [
           ...displayMessages,
           { role: "assistant", content: replyText },
-        ]);
+        ];
+        setMessages(failedMsgs);
+        saveSessionMessages(activeSessionId, failedMsgs);
         return;
       }
 
@@ -789,10 +886,11 @@ export default function Home() {
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         streamedReply += chunk;
-        setMessages([
+        const currentMsgs: Message[] = [
           ...displayMessages,
           { role: "assistant", content: streamedReply },
-        ]);
+        ];
+        setMessages(currentMsgs);
       }
 
       if (streamedReply.trim()) {
@@ -800,6 +898,7 @@ export default function Home() {
           ...displayMessages,
           { role: "assistant", content: streamedReply },
         ];
+        saveSessionMessages(activeSessionId, updated);
         setHistoryMessages(updated);
         saveLocalHistory(updated);
       }
